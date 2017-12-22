@@ -1,0 +1,23 @@
+{
+  "buildFiles": [
+    "C:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk"
+  ],
+  "cleanCommands": [
+    "C:\\Users\\Marven\\AppData\\Local\\Android\\sdk\\ndk-bundle\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk APP_ABI\u003darmeabi NDK_ALL_ABIS\u003darmeabi NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-9 NDK_OUT\u003dC:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\debug\\lib clean"
+  ],
+  "libraries": {
+    "app-debug-armeabi": {
+      "buildCommand": "C:\\Users\\Marven\\AppData\\Local\\Android\\sdk\\ndk-bundle\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk APP_ABI\u003darmeabi NDK_ALL_ABIS\u003darmeabi NDK_DEBUG\u003d1 APP_PLATFORM\u003dandroid-9 NDK_OUT\u003dC:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/debug/obj NDK_LIBS_OUT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\debug\\lib C:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/debug/obj/local/armeabi/libapp.so",
+      "toolchain": "toolchain-armeabi",
+      "abi": "armeabi",
+      "artifactName": "app",
+      "files": [],
+      "output": "C:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\debug\\obj\\local\\armeabi\\libapp.so"
+    }
+  },
+  "toolchains": {
+    "toolchain-armeabi": {}
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}

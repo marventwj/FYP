@@ -1,0 +1,23 @@
+{
+  "buildFiles": [
+    "C:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk"
+  ],
+  "cleanCommands": [
+    "C:\\Users\\Marven\\AppData\\Local\\Android\\sdk\\ndk-bundle\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk APP_ABI\u003dmips64 NDK_ALL_ABIS\u003dmips64 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-21 NDK_OUT\u003dC:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\release\\lib clean"
+  ],
+  "libraries": {
+    "app-release-mips64": {
+      "buildCommand": "C:\\Users\\Marven\\AppData\\Local\\Android\\sdk\\ndk-bundle\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\app\\build\\intermediates\\ndk\\debug\\Android.mk APP_ABI\u003dmips64 NDK_ALL_ABIS\u003dmips64 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-21 NDK_OUT\u003dC:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\release\\lib C:/Users/Marven/Desktop/BlunoBasicDemo-master/Android/BlunoBasicDemo/openCVLibrary331/build/intermediates/ndkBuild/release/obj/local/mips64/libapp.so",
+      "toolchain": "toolchain-mips64",
+      "abi": "mips64",
+      "artifactName": "app",
+      "files": [],
+      "output": "C:\\Users\\Marven\\Desktop\\BlunoBasicDemo-master\\Android\\BlunoBasicDemo\\openCVLibrary331\\build\\intermediates\\ndkBuild\\release\\obj\\local\\mips64\\libapp.so"
+    }
+  },
+  "toolchains": {
+    "toolchain-mips64": {}
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}

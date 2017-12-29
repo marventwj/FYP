@@ -20,6 +20,8 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -29,8 +31,10 @@ import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.SurfaceView;
 
-public class CameraActivity extends Activity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
+public class CameraActivity extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG              = "OCVSample::Activity";
+
+    MediaPlayer soundMP3;
 
     private boolean              mIsColorSelected = false;
     private Mat mRgba;
@@ -72,6 +76,7 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
         super.onCreate(savedInstanceState);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -82,6 +87,9 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);   //no need?
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        soundMP3 = MediaPlayer.create(this, R.raw.press_start_when_you_are_ready);
+        soundMP3.start();       //press start when you are ready sound
     }
 
     @Override
@@ -111,7 +119,13 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
             mOpenCvCameraView.disableView();
     }
 
+    @Override
+    public void onBackPressed() {
+        //moveTaskToBack(true);
+    }
+
     public void onCameraViewStarted(int width, int height) {
+
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mDetector = new ColorBlobDetector();
         mSpectrum = new Mat();
@@ -119,6 +133,7 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
         mBlobColorHsv = new Scalar(255);
         SPECTRUM_SIZE = new Size(200, 64);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
+
     }
 
     public void onCameraViewStopped() {
@@ -126,6 +141,8 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
     }
 
     public boolean onTouch(View v, MotionEvent event) {     //when press on camera screen
+        Log.e(TAG, "TOUCHED");
+
         int cols = mRgba.cols();    //get resolution of display ( cols value is 1280 )
         int rows = mRgba.rows();    //get resolution of display  ( rows value is 720 )
 
@@ -135,12 +152,8 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
         int x = (int)event.getX() - xOffset;    //get resolution of display (event.getX is y axis, most top lesser value, more btm higher value ~?)
         int y = (int)event.getY() - yOffset;    //get resolution of display (event.getY is x axis, most right lesser value, most left higher value ~?)
 
-
-        //int x = (int)event.getX();
-        //int y = (int)event.getY();
         Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");          // x is y axis, most top lesser value, more btm higher value ~ 1460
                                                                                     //  y is x axis, most right lesser value, most left higher value ~800
-
         if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;   //ensure it is within screen
 
         //make a rectangle of width and height of 8 (it's centre point is x & y i.e the touched point event.getX and event.getY, hence need to convert to rectangle's x and y (the starting corner of rectangle).
@@ -160,9 +173,22 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
         // Calculate average color of touched region (the rectangle region)
         mBlobColorHsv = Core.sumElems(touchedRegionHsv);
         int pointCount = touchedRect.width*touchedRect.height;
-        for (int i = 0; i < mBlobColorHsv.val.length; i++)
+        for (int i = 0; i < mBlobColorHsv.val.length; i++) {
             mBlobColorHsv.val[i] /= pointCount;
+            System.out.println("touched HSV color: " + mBlobColorHsv.val[i]);
+        }
 
+//////////colour detection starts from here.-----------------------------------------------------
+
+        //hsv : 95, 126, 164, 0 - green chip
+//        mBlobColorHsv.val[0] = 95;  //H
+//        mBlobColorHsv.val[1] = 126; //S
+//        mBlobColorHsv.val[2] = 164; //V
+
+        //with red LED on
+        mBlobColorHsv.val[0] = 67;  //H
+        mBlobColorHsv.val[1] = 204; //S
+        mBlobColorHsv.val[2] = 131; //V
 
         //converts hsv scalar value to rgba scalar value
         mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
@@ -171,8 +197,8 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
 
-        //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
-        mDetector.setHsvColor(mBlobColorHsv);
+        mDetector.setColorRadius(new Scalar(50,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        mDetector.setHsvColor(mBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
 
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);      //resize the image to specture size
 
@@ -203,15 +229,15 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
                 points = contours.get(k).toArray();
                 System.out.println("@@@@@@@@@@@@@@@@@@@@points.length: " + points.length);
 
-                /*
-                for (int i = 0; i < points.length; i++) {
-                    Imgproc.circle(mRgba, points[i] ,4 , CONTOUR_COLOR);
-                    double x = points[i].x;
-                    double y = points[i].y;
-                    System.out.println("x: " + x);
-                    System.out.println("y: " + y);
-                }
-*/
+
+//                for (int i = 0; i < points.length; i++) {
+//                    Imgproc.circle(mRgba, points[i] ,4 , CONTOUR_COLOR);
+//                    double x = points[i].x;
+//                    double y = points[i].y;
+//                    System.out.println("x: " + x);
+//                    System.out.println("y: " + y);
+//                }
+
 
 
                 minValueX = points[0].x;
@@ -241,23 +267,20 @@ public class CameraActivity extends Activity implements View.OnTouchListener, Ca
                 //Imgproc.circle(mRgba, centrePoint ,10 , CONTOUR_COLOR);
                 //Imgproc.putText(mRgba, String.valueOf(k) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR);      //show number of chip (specified colour) detected
                 Imgproc.putText(mRgba, String.valueOf(centreX) + ", " + String.valueOf(centreY) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR); //show centre x,y of chip (specified colour)
-                //System.out.println("centreX: " + centreX);
-                //System.out.println("centreY: " + centreY);
+                System.out.println("centreX: " + centreX);
+                System.out.println("centreY: " + centreY);
 
             }
-
-
-
-
             Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);   //draw red contours on the screen
 
+
+
+            //show touched colour on the top left side
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
             colorLabel.setTo(mBlobColorRgba);
-
             Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
             mSpectrum.copyTo(spectrumLabel);
         }
-
         return mRgba;
     }
 

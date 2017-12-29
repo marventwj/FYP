@@ -142,7 +142,8 @@ public class BluetoothLeService extends Service {
 				//CharacteristicWrite success
 	        	if(status == BluetoothGatt.GATT_SUCCESS)
 	        	{
-	        		System.out.println("onCharacteristicWrite success:"+ new String(characteristic.getValue()));
+                    System.out.println("onCharacteristicWrite success! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+	        		//System.out.println("onCharacteristicWrite success:"+ new String(characteristic.getValue()));
             		if(mCharacteristicRingBuffer.isEmpty())
             		{
             		    System.out.println("ring buffer is empty!@@@@@@@@@ ");
@@ -222,21 +223,28 @@ public class BluetoothLeService extends Service {
 	            		else
 	            		{
 
-	            		    System.out.println("THE BLUETOOTHGATTCHARACTERISTIC STRING $$$$$$$$$$$$$$$$$$$$$$$$$ " + bluetoothGattCharacteristicHelper.mCharacteristicValue);
-                            bluetoothGattCharacteristicHelper.mCharacteristic.setValue(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue));
-                            System.out.println("THE BYTE ARRAYS SENDING $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: " + Arrays.toString(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue)));
-                            /*
-	            	        try {
-		            			bluetoothGattCharacteristicHelper.mCharacteristic.setValue(bluetoothGattCharacteristicHelper.mCharacteristicValue.getBytes("ISO-8859-1"));
-	            	        } catch (UnsupportedEncodingException e) {
-	            	            // this should never happen because "US-ASCII" is hard-coded.
-	            	            throw new IllegalStateException(e);
-	            	        }*/
-	            			
+                            if (bluetoothGattCharacteristicHelper.mCharacteristicValue.equalsIgnoreCase("AT+PASSWOR=DFRobot\r\n") ||
+                                    bluetoothGattCharacteristicHelper.mCharacteristicValue.equalsIgnoreCase("AT+CURRUART=9600\r\n")) {
+
+                                try {
+                                    bluetoothGattCharacteristicHelper.mCharacteristic.setValue(bluetoothGattCharacteristicHelper.mCharacteristicValue.getBytes("ISO-8859-1"));
+                                } catch (UnsupportedEncodingException e) {
+                                    // this should never happen because "US-ASCII" is hard-coded.
+                                    throw new IllegalStateException(e);
+                                }
+
+                            }
+
+                            else {
+                                System.out.println("THE BLUETOOTHGATTCHARACTERISTIC STRING $$$$$$$$$$$$$$$$$$$$$$$$$ " + bluetoothGattCharacteristicHelper.mCharacteristicValue);
+                                bluetoothGattCharacteristicHelper.mCharacteristic.setValue(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue));
+                                System.out.println("THE BYTE ARRAYS SENDING $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: " + Arrays.toString(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue)));
+                            }
 
 	            	        if(mBluetoothGatt.writeCharacteristic(bluetoothGattCharacteristicHelper.mCharacteristic))
 	            	        {
-	            	        	System.out.println("writeCharacteristic init 4 "+new String(bluetoothGattCharacteristicHelper.mCharacteristic.getValue())+ ":success");
+	            	            System.out.println("writeCharacteristic init 4 SUCCESSFUL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+	            	        //	System.out.println("writeCharacteristic init 4 "+new String(bluetoothGattCharacteristicHelper.mCharacteristic.getValue())+ ":success");
 //	            	        	System.out.println((byte)bluetoothGattCharacteristicHelper.mCharacteristic.getValue()[0]);
 //	            	        	System.out.println((byte)bluetoothGattCharacteristicHelper.mCharacteristic.getValue()[1]);
 //	            	        	System.out.println((byte)bluetoothGattCharacteristicHelper.mCharacteristic.getValue()[2]);

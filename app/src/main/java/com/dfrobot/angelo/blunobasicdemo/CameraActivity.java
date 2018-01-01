@@ -1,5 +1,7 @@
 package com.dfrobot.angelo.blunobasicdemo;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -34,10 +36,12 @@ import android.view.SurfaceView;
 public class CameraActivity extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG              = "OCVSample::Activity";
 
+
+
     MediaPlayer soundMP3;
 
     private boolean              mIsColorSelected = false;
-    private Mat mRgba;
+    private Mat mRgba , mIntermediateMat;
     private Scalar mBlobColorRgba;
     private Scalar               mBlobColorHsv;
     private ColorBlobDetector    mDetector;
@@ -126,6 +130,9 @@ public class CameraActivity extends BaseActivity implements View.OnTouchListener
 
     public void onCameraViewStarted(int width, int height) {
 
+        mIntermediateMat = new Mat();
+
+
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mDetector = new ColorBlobDetector();
         mSpectrum = new Mat();
@@ -153,7 +160,7 @@ public class CameraActivity extends BaseActivity implements View.OnTouchListener
         int y = (int)event.getY() - yOffset;    //get resolution of display (event.getY is x axis, most right lesser value, most left higher value ~?)
 
         Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");          // x is y axis, most top lesser value, more btm higher value ~ 1460
-                                                                                    //  y is x axis, most right lesser value, most left higher value ~800
+        //  y is x axis, most right lesser value, most left higher value ~800
         if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;   //ensure it is within screen
 
         //make a rectangle of width and height of 8 (it's centre point is x & y i.e the touched point event.getX and event.getY, hence need to convert to rectangle's x and y (the starting corner of rectangle).
@@ -211,76 +218,17 @@ public class CameraActivity extends BaseActivity implements View.OnTouchListener
         return false; // don't need subsequent touch events
     }
 
-    Point[] points;
-    double minValueX, minValueY, maxValueX, maxValueY, centreX , centreY;
-
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        //take the frame rgba mat object
+
         mRgba = inputFrame.rgba();
-
-        //if screen is touched,based on the touched average colour make the blobs
+        //if screen is touched, draw contours
         if (mIsColorSelected) {
-            mDetector.process(mRgba);
-            List<MatOfPoint> contours = mDetector.getContours();       //get the contours after mDetector.process
-            Log.e(TAG, "Contours count: " + contours.size());
-
-
-            for (int k=0; k<contours.size(); k++) {
-                points = contours.get(k).toArray();
-                System.out.println("@@@@@@@@@@@@@@@@@@@@points.length: " + points.length);
-
-
-//                for (int i = 0; i < points.length; i++) {
-//                    Imgproc.circle(mRgba, points[i] ,4 , CONTOUR_COLOR);
-//                    double x = points[i].x;
-//                    double y = points[i].y;
-//                    System.out.println("x: " + x);
-//                    System.out.println("y: " + y);
-//                }
-
-
-
-                minValueX = points[0].x;
-                minValueY = points[0].y;
-                for (int i=1; i<points.length; i++){
-                    if (points[i].x < minValueX){
-                        minValueX = points[i].x;
-                    }
-                    if (points[i].y < minValueY){
-                        minValueY = points[i].y;
-                    }
-                }
-
-                maxValueX = points[0].x;
-                maxValueY = points[0].y;
-                for (int i=1; i<points.length; i++){
-                    if (points[i].x > maxValueX){
-                        maxValueX = points[i].x;
-                    }
-                    if (points[i].y > maxValueY){
-                        maxValueY = points[i].y;
-                    }
-                }
-                centreX = (maxValueX - minValueX) / 2 + minValueX;
-                centreY = (maxValueY - minValueY) / 2 + minValueY;
-                Point centrePoint = new Point( centreX, centreY);
-                //Imgproc.circle(mRgba, centrePoint ,10 , CONTOUR_COLOR);
-                //Imgproc.putText(mRgba, String.valueOf(k) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR);      //show number of chip (specified colour) detected
-                Imgproc.putText(mRgba, String.valueOf(centreX) + ", " + String.valueOf(centreY) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR); //show centre x,y of chip (specified colour)
-                System.out.println("centreX: " + centreX);
-                System.out.println("centreY: " + centreY);
-
-            }
-            Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);   //draw red contours on the screen
-
-
-
-            //show touched colour on the top left side
-            Mat colorLabel = mRgba.submat(4, 68, 4, 68);
-            colorLabel.setTo(mBlobColorRgba);
-            Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
-            mSpectrum.copyTo(spectrumLabel);
+            Imgproc.Canny(mRgba, mIntermediateMat, 80, 90);
+            mDetector.processForCanny(mIntermediateMat);
+            List<MatOfPoint> filteredContours = mDetector.getFilteredContours();
+            Imgproc.drawContours(mRgba, filteredContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
         }
+        //Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2BGRA, 4);
         return mRgba;
     }
 

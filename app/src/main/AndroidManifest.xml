@@ -42,16 +42,11 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
             android:enabled="true"/>
 
 
-
-        <activity
-            android:name=".Game1"
-            android:label="@string/title_activity_camera" />
-        <activity
-            android:name=".CameraActivity"
-            android:label="@string/title_activity_select_game" />
+        <activity android:name=".Game1" />
+        <activity android:name=".VerifyResults" />
         <activity android:name=".SelectGame" />
         <activity android:name=".CameraCheckChipsRemoved" />
         <activity android:name=".HowToPlay"></activity>
     </application>
 
-</manifest> <!-- android:namGame1vity" --><!-- android:name=".CameraActivity" -->
+</manifest>

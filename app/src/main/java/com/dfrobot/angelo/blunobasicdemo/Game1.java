@@ -1,15 +1,9 @@
 package com.dfrobot.angelo.blunobasicdemo;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.content.Intent;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,6 +15,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Game1 extends BaseActivity {
+
+    private static final String TAG = "OCVSample::Activity";
+
     private Button buttonScan, buttonSerialSend;
     private TextView topTextView, bottomTextView;
     boolean flag = true;
@@ -32,10 +29,12 @@ public class Game1 extends BaseActivity {
     Intent i;
     MediaPlayer soundMP3, soundGetReady, soundThree, soundTwo, soundOne;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game1);
+
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 //        onCreateProcess();                                                        //onCreate Process by BlunoLibrary
 //        serialBegin(9600);                                                    //set the Uart Baudrate on BLE chip to 115200
@@ -46,7 +45,7 @@ public class Game1 extends BaseActivity {
         soundOne = MediaPlayer.create(this, R.raw.one);
 
 
-        i = new Intent(this, CameraActivity.class);
+        i = new Intent(this, VerifyResults.class);
 
 
         topTextView = (TextView) findViewById(R.id.topTextView);
@@ -199,6 +198,7 @@ public class Game1 extends BaseActivity {
             @Override
             public void run() {
                 System.out.println("you may place your chips now!");
+                i.putExtra("boardMatrix", getIntent().getSerializableExtra("boardMatrix"));
                 startActivity(i);
             }
         }, delay);    //in millis

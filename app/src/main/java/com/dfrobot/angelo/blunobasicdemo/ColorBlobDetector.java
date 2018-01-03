@@ -120,23 +120,15 @@ public class ColorBlobDetector {
 
 
     public void processForCanny(Mat rgbaImage) {
-
-
-
-
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-
         Imgproc.findContours(mPyrDownMat, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         // mDIlatedMask - an enlarged binary image. mHierarchy - not used. RETR_EXTERNAL - retrieves only the extreme outer contours
         //CV_CHAIN_APPROX_SIMPLE compresses horizontal, vertical, and diagonal segments and leaves only their end points
 
-        //  mContours = contours;
-
         // Find max contour area
         double maxArea = 0;
         Iterator<MatOfPoint> each = contours.iterator();
-
         while (each.hasNext()) {
             MatOfPoint wrapper = each.next();
             double area = Imgproc.contourArea(wrapper);
@@ -158,65 +150,63 @@ public class ColorBlobDetector {
 
 
 
-
-        filteredContours.clear();
-        //List<MatOfPoint> contours = mDetector.getContours();       //get the contours after mDetector.process
-        Log.e(TAG, "Contours count: " + mContours.size());
-        for (int k=0; k<mContours.size(); k++) {
-            points = mContours.get(k).toArray();
-
-            //find minimum value of x and y
-            minValueX = points[0].x;
-            minValueY = points[0].y;
-            for (int i=1; i<points.length; i++){
-                if (points[i].x < minValueX){
-                    minValueX = points[i].x;
-                }
-                if (points[i].y < minValueY){
-                    minValueY = points[i].y;
-                }
-            }
-
-            //find maximum value of x and y
-            maxValueX = points[0].x;
-            maxValueY = points[0].y;
-            for (int i=1; i<points.length; i++){
-                if (points[i].x > maxValueX){
-                    maxValueX = points[i].x;
-                }
-                if (points[i].y > maxValueY){
-                    maxValueY = points[i].y;
-                }
-            }
-
-            //find centre of x and y
-            centreX = (maxValueX - minValueX) / 2 + minValueX;
-            centreY = (maxValueY - minValueY) / 2 + minValueY;
-            Point centrePoint = new Point( centreX, centreY);
-            //Imgproc.circle(mRgba, centrePoint ,10 , CONTOUR_COLOR);
-            //Imgproc.putText(mRgba, String.valueOf(k) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR);      //show number of chip (specified colour) detected
-//                Imgproc.putText(mRgba, String.valueOf(centreX) + ", " + String.valueOf(centreY) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR); //show centre x,y of chip (specified colour)
-//                System.out.println("centreX: " + centreX);
-//                System.out.println("centreY: " + centreY);
-
-            //filter identified contours to detect properties of circle/square
-            if ( ((maxValueX - minValueX) > 70 ) && ((maxValueX - minValueX) < 130) )       //each contour must be within this y range
-                if ( ((maxValueY - minValueY) > 50 ) && ((maxValueY - minValueY) < 130) )       //each contour must be within this y range
-                filteredContours.add(mContours.get(k));
-
-                /*
-                if (prevCentreX !=0) {
-                    if (((Math.abs(centreX - prevCentreX)) > 100) && ((Math.abs(centreX - prevCentreX)) < 130))
-                        filteredContours.add(mContours.get(k));
-                }
-                prevCentreX = centreX;
-                prevCentreY = centreY;
-                */
-        }
-
-
-
-
+//        filteredContours.clear();
+//        //List<MatOfPoint> contours = mDetector.getContours();       //get the contours after mDetector.process
+//        Log.e(TAG, "Contours count: " + mContours.size());
+//
+//
+//
+//        for (int k=0; k<mContours.size(); k++) {
+//            points = mContours.get(k).toArray();
+//
+//            //find minimum value of x and y
+//            minValueX = points[0].x;
+//            minValueY = points[0].y;
+//            for (int i=1; i<points.length; i++){
+//                if (points[i].x < minValueX){
+//                    minValueX = points[i].x;
+//                }
+//                if (points[i].y < minValueY){
+//                    minValueY = points[i].y;
+//                }
+//            }
+//
+//            //find maximum value of x and y
+//            maxValueX = points[0].x;
+//            maxValueY = points[0].y;
+//            for (int i=1; i<points.length; i++){
+//                if (points[i].x > maxValueX){
+//                    maxValueX = points[i].x;
+//                }
+//                if (points[i].y > maxValueY){
+//                    maxValueY = points[i].y;
+//                }
+//            }
+//
+//            //find centre of x and y
+//            centreX = (maxValueX - minValueX) / 2 + minValueX;
+//            centreY = (maxValueY - minValueY) / 2 + minValueY;
+//            Point centrePoint = new Point( centreX, centreY);
+//            //Imgproc.circle(mRgba, centrePoint ,10 , CONTOUR_COLOR);
+//            //Imgproc.putText(mRgba, String.valueOf(k) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR);      //show number of chip (specified colour) detected
+////                Imgproc.putText(mRgba, String.valueOf(centreX) + ", " + String.valueOf(centreY) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR); //show centre x,y of chip (specified colour)
+////                System.out.println("centreX: " + centreX);
+////                System.out.println("centreY: " + centreY);
+//
+//            //filter identified contours to detect properties of circle/square
+//            if ( ((maxValueX - minValueX) > 70 ) && ((maxValueX - minValueX) < 130) )       //each contour must be within this y range
+//                if ( ((maxValueY - minValueY) > 50 ) && ((maxValueY - minValueY) < 130) )       //each contour must be within this y range
+//                    filteredContours.add(mContours.get(k));
+//
+//                /*
+//                if (prevCentreX !=0) {
+//                    if (((Math.abs(centreX - prevCentreX)) > 100) && ((Math.abs(centreX - prevCentreX)) < 130))
+//                        filteredContours.add(mContours.get(k));
+//                }
+//                prevCentreX = centreX;
+//                prevCentreY = centreY;
+//                */
+//        }
 
     }
 

@@ -44,7 +44,7 @@
         android:orientation="horizontal">
 
         <android.support.v7.widget.CardView
-            android:id="@+id/bankcardId"
+            android:id="@+id/Game1Card"
             android:layout_width="200dp"
             android:layout_height="160dp"
             android:layout_margin="10dp"
@@ -65,11 +65,12 @@
                     android:src="@drawable/ic_attach_money_black_24dp" />
 
                 <TextView
+                    android:id="@+id/game1Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:textColor="@android:color/darker_gray"
-                    android:text="Game 1 Name"
+
                     android:textStyle="bold" />
 
                 <View
@@ -79,17 +80,19 @@
                     android:background="@color/lightgray" />
 
                 <TextView
+                    android:id="@+id/game1Desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Game 1 Desc"
+
                     android:textColor="@android:color/darker_gray" />
 
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
+            android:id="@+id/Game2Card"
             android:layout_width="200dp"
             android:layout_height="160dp"
             android:layout_margin="10dp"
@@ -110,10 +113,11 @@
                     android:src="@drawable/ic_lightbulb_outline_black_24dp" />
 
                 <TextView
+                    android:id="@+id/game2Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Game 2 Name"
+
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 
@@ -124,11 +128,12 @@
                     android:background="@color/lightgray" />
 
                 <TextView
+                    android:id="@+id/game2Desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Game 2 Desc"
+
                     android:textColor="@android:color/darker_gray" />
 
             </LinearLayout>
@@ -144,6 +149,7 @@
         android:orientation="horizontal">
 
         <android.support.v7.widget.CardView
+            android:id="@+id/Game3Card"
             android:layout_width="200dp"
             android:layout_height="160dp"
             android:layout_margin="10dp"
@@ -164,10 +170,11 @@
                     android:src="@drawable/ic_control_point_black_24dp" />
 
                 <TextView
+                    android:id="@+id/game3Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Game 3 name"
+
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 
@@ -178,17 +185,19 @@
                     android:background="@color/lightgray" />
 
                 <TextView
+                    android:id="@+id/game3Desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Game 3 Desc"
+
                     android:textColor="@android:color/darker_gray" />
 
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
+            android:id="@+id/Game4Card"
             android:layout_width="200dp"
             android:layout_height="160dp"
             android:layout_margin="10dp"
@@ -209,10 +218,11 @@
                     android:src="@drawable/ic_attach_file_black_24dp" />
 
                 <TextView
+                    android:id="@+id/game4Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Game 4 Name"
+
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 
@@ -223,11 +233,12 @@
                     android:background="@color/lightgray" />
 
                 <TextView
+                    android:id="@+id/game4Desc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Game 4 Desc"
+
                     android:textColor="@android:color/darker_gray" />
 
             </LinearLayout>

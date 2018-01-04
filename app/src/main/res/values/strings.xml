@@ -22,4 +22,5 @@
     <string name="action_settings">Action settings</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_select_game">SelectGameActivity</string>
+    <string name="title_activity_score">Score</string>
 </resources>

@@ -36,17 +36,18 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
         <service
             android:name=".BluetoothLeService"
             android:enabled="true" />
-
         <service
-            android:name="MusicService"
-            android:enabled="true"/>
-
+            android:name=".MusicService"
+            android:enabled="true" />
 
         <activity android:name=".Game1" />
         <activity android:name=".VerifyResults" />
         <activity android:name=".SelectGame" />
         <activity android:name=".CameraCheckChipsRemoved" />
-        <activity android:name=".HowToPlay"></activity>
+        <activity android:name=".HowToPlay" />
+        <activity
+            android:name=".Score"
+            android:label="@string/title_activity_score"></activity>
     </application>
 
 </manifest>

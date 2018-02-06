@@ -5,8 +5,8 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId "com.dfrobot.angelo.blunobasicdemo"
-        minSdkVersion 18
+        applicationId "com.marven.fyp.memorytraining"
+        minSdkVersion 21
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"

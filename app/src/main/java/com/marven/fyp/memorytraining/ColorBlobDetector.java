@@ -1,4 +1,4 @@
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import android.util.Log;
 
@@ -14,14 +14,14 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import static android.content.ContentValues.TAG;
+import static com.marven.fyp.memorytraining.HomeWatcher.TAG;
 
 public class ColorBlobDetector {
     // Lower and Upper bounds for range checking in HSV color space
     private Scalar mLowerBound = new Scalar(0);
     private Scalar mUpperBound = new Scalar(0);
     // Minimum contour area in percent for contours filtering
-    private static double mMinContourArea = 0.1; //0.1
+    private static double mMinContourArea = 0.1; //0.1     0.001
     // Color radius for range checking in HSV color space
     private Scalar mColorRadius = new Scalar(25,50,50,0);   //25 50 50 0
     private Mat mSpectrum = new Mat();
@@ -29,6 +29,7 @@ public class ColorBlobDetector {
 
     // Cache
     Mat mPyrDownMat = new Mat();
+    Mat mIntermediateMat = new Mat();
     Mat mHsvMat = new Mat();
     Mat mMask = new Mat();
     Mat mDilatedMask = new Mat();
@@ -114,6 +115,28 @@ public class ColorBlobDetector {
     }
 
 
+    public void processForLightIntensity(Mat rgbaImage) {
+
+        Imgproc.cvtColor(rgbaImage, mIntermediateMat, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.pyrDown(mIntermediateMat, mIntermediateMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
+        Imgproc.threshold(mIntermediateMat, mIntermediateMat,127, 255, Imgproc.THRESH_BINARY);  //based on light intensity, becomes black and white
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Imgproc.findContours(mIntermediateMat, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);   //find contour from black and white image
+
+        mContours.clear();
+        Iterator<MatOfPoint> each = contours.iterator();
+        while (each.hasNext()) {
+            MatOfPoint contour = each.next();
+            Core.multiply(contour, new Scalar(2,2), contour);
+            mContours.add(contour);
+        }
+
+
+    }
+
+
+
+
     Point[] points;
     double minValueX, minValueY, maxValueX, maxValueY, centreX , centreY , prevCentreX=0, prevCentreY=0;
     List<MatOfPoint> filteredContours = new ArrayList<MatOfPoint>();
@@ -122,9 +145,13 @@ public class ColorBlobDetector {
     public void processForCanny(Mat rgbaImage) {
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+
+   //     Imgproc.findContours(rgbaImage, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         Imgproc.findContours(mPyrDownMat, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         // mDIlatedMask - an enlarged binary image. mHierarchy - not used. RETR_EXTERNAL - retrieves only the extreme outer contours
         //CV_CHAIN_APPROX_SIMPLE compresses horizontal, vertical, and diagonal segments and leaves only their end points
+
+//        mContours = contours;
 
         // Find max contour area
         double maxArea = 0;
@@ -141,9 +168,13 @@ public class ColorBlobDetector {
         each = contours.iterator();
         while (each.hasNext()) {
             MatOfPoint contour = each.next();
-            if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+           // if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+            if ( (Imgproc.contourArea(contour) > 500) && (Imgproc.contourArea(contour) < 10000) ) {
+          //  if ( (Imgproc.contourArea(contour) > 70)  ) {
                 Core.multiply(contour, new Scalar(2,2), contour);
                 mContours.add(contour);
+
+                Log.e(TAG, "area " + mContours.size() + ": " + Imgproc.contourArea(contour));
             }
         }
 

@@ -1,4 +1,4 @@
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public abstract  class BlunoLibrary  extends Activity {
 
 	private boolean serviceConnected = false;
 
-	private int mBaudrate = 9600;    //set the default baud rate to 115200
+	private int mBaudrate = 115200;    //set the default baud rate to 115200
 	private String mPassword = "AT+PASSWOR=DFRobot\r\n";
 
 	private boolean receiverRegistered = false;

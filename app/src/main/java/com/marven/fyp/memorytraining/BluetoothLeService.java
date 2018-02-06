@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -35,9 +35,6 @@ import android.util.Log;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
-
-import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE;
-import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE;
 
 
 /**

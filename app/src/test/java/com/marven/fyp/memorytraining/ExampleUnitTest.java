@@ -1,4 +1,4 @@
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import org.junit.Test;
 

@@ -1,10 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.dfrobot.angelo.blunobasicdemo.Game1">
+    tools:context="com.marven.fyp.memorytraining.Game1">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/difficulty_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/level_one"
+        android:orderInCategory="100"
+        android:title="Level one"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/level_two"
+        android:orderInCategory="100"
+        android:title="Level two"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/level_three"
+        android:orderInCategory="100"
+        android:title="Level three"
         app:showAsAction="never" />
 </menu>

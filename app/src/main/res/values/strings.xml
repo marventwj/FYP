@@ -19,8 +19,12 @@
     <string name="menu_disconnect">Disconnect</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
-    <string name="action_settings">Action settings</string>
+    <string name="action_settings">Difficulty Settings</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_select_game">SelectGameActivity</string>
     <string name="title_activity_score">Score</string>
+    <string name="title_activity_camera_check_chips_colour">CameraCheckChipsColour</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_difficulty_settings">DifficultySettings</string>
+    <string name="title_activity_select_difficulty">SelectDifficulty</string>
 </resources>

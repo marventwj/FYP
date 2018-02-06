@@ -1,4 +1,4 @@
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import android.view.SurfaceView;
 
 public class VerifyResults extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG              = "OCVSample::Activity";
+    public static final int chipBufferLengthFromCentre = 25;
 
     public enum Colours {
         RED,
@@ -185,9 +186,9 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
 
         //hsv : x, x, x, 0 - red chip
-        redBlobColorHsv.val[0] = 250;  //H
-        redBlobColorHsv.val[1] = 136; //S
-        redBlobColorHsv.val[2] = 118; //V
+        redBlobColorHsv.val[0] = 254;  //H  //250
+        redBlobColorHsv.val[1] = 224; //S   //136
+        redBlobColorHsv.val[2] = 109; //V
 
         //hsv : 95, 126, 164, 0 - green chip
         greenBlobColorHsv.val[0] = 95;  //H
@@ -211,10 +212,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
 
 
-        redDetector.setColorRadius(new Scalar(25,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        greenDetector.setColorRadius(new Scalar(25,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        blueDetector.setColorRadius(new Scalar(25,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        yellowDetector.setColorRadius(new Scalar(25,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        redDetector.setColorRadius(new Scalar(15,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        greenDetector.setColorRadius(new Scalar(15,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        blueDetector.setColorRadius(new Scalar(15,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        yellowDetector.setColorRadius(new Scalar(15,50,255,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
 
         //mDetector.setHsvColor(mBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
         redDetector.setHsvColor(redBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
@@ -356,10 +357,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 redCentrePointX = redCentrePointList.get(i).x();
                 redCentrePointY = redCentrePointList.get(i).y();
                 for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (redCentrePointY - 25)) && (boardMatrix[j][0].y() < (redCentrePointY + 25))) { //use first column as reference to check which column the chip lies on
+                    if ((boardMatrix[j][0].y() > (redCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (redCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
                         //check X
                         for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (redCentrePointX - 25)) && (boardMatrix[j][k].x() < (redCentrePointX + 25))) {
+                            if ((boardMatrix[j][k].x() > (redCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (redCentrePointX + chipBufferLengthFromCentre))) {
                                 chipPlacement[j][k] = 'r';
                                 break;
                             }
@@ -372,10 +373,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 greenCentrePointX = greenCentrePointList.get(i).x();
                 greenCentrePointY = greenCentrePointList.get(i).y();
                 for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (greenCentrePointY - 25)) && (boardMatrix[j][0].y() < (greenCentrePointY + 25))) { //use first column as reference to check which column the chip lies on
+                    if ((boardMatrix[j][0].y() > (greenCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (greenCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
                         //check X
                         for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (greenCentrePointX - 25)) && (boardMatrix[j][k].x() < (greenCentrePointX + 25))) {
+                            if ((boardMatrix[j][k].x() > (greenCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (greenCentrePointX + chipBufferLengthFromCentre))) {
                                 chipPlacement[j][k] = 'g';
                                 break;
                             }
@@ -388,10 +389,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 blueCentrePointX = blueCentrePointList.get(i).x();
                 blueCentrePointY = blueCentrePointList.get(i).y();
                 for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (blueCentrePointY - 25)) && (boardMatrix[j][0].y() < (blueCentrePointY + 25))) { //use first column as reference to check which column the chip lies on
+                    if ((boardMatrix[j][0].y() > (blueCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (blueCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
                         //check X
                         for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (blueCentrePointX - 25)) && (boardMatrix[j][k].x() < (blueCentrePointX + 25))) {
+                            if ((boardMatrix[j][k].x() > (blueCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (blueCentrePointX + chipBufferLengthFromCentre))) {
                                 chipPlacement[j][k] = 'b';
                                 break;
                             }
@@ -404,10 +405,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 yellowCentrePointX = yellowCentrePointList.get(i).x();
                 yellowCentrePointY = yellowCentrePointList.get(i).y();
                 for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (yellowCentrePointY - 25)) && (boardMatrix[j][0].y() < (yellowCentrePointY + 25))) { //use first column as reference to check which column the chip lies on
+                    if ((boardMatrix[j][0].y() > (yellowCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (yellowCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
                         //check X
                         for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (yellowCentrePointX - 25)) && (boardMatrix[j][k].x() < (yellowCentrePointX + 25))) {
+                            if ((boardMatrix[j][k].x() > (yellowCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (yellowCentrePointX + chipBufferLengthFromCentre))) {
                                 chipPlacement[j][k] = 'y';
                                 break;
                             }
@@ -435,30 +436,19 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");       //turn off all LED
             send();
 
-
+            //verify win or lose
             if (Arrays.deepEquals(chipPlacement, generatedPlacement)) {
                 Log.e(TAG, "user won!");//user wins
                 win = true;
                 level += 1; //next level
-
-//                if (level >3){
-//                    ;//reached max level
-//                }
-//                else{
-//                    i.putExtra("Level",level);
-//                    ;//next level / select other game, from verify results go back to checkchipsremoved activity, pass in next level intent
-//                }
-
-
-            //else go to score page put user won, show score, play again / select other game
             }
             else {
                 Log.e(TAG, "user lost!");//user loses
                 level = 1; //restart level
                 win = false;
-                //go to score page put user lost,show score? play again / select other game
             }
 
+            //put extra to next activity
             i.putExtra("Level",level);
             i.putExtra("win", win);
             i.putExtra("GameSelected", gameSelected);
@@ -471,21 +461,21 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
 
     private void lightUpGeneratedPlacement(){
-        while (!lightedLEDStringList.isEmpty()){
-            if (lightedLEDStringList.size()!=1) {
-                String stringToAppend = lightedLEDStringList.remove(0);
-                String appendedString = stringToAppend.substring(0,1)+'0'+stringToAppend.substring(2);  //append first byte into "00" //don't show LED
+        for (int i=0; i<lightedLEDStringList.size(); i++) {
+            if (i == (lightedLEDStringList.size()-1) ){ //last in lightedLEDStringlist
+                stringBuffer.add(lightedLEDStringList.get(i)); //show LED since is last, no need to append
+                send();
+            }
+            else{
+                String stringToAppend = lightedLEDStringList.get(i);
+                String appendedString = stringToAppend.substring(0, 1) + '0' + stringToAppend.substring(2);  //append first byte into "00" //don't show LED
 //                Log.e(TAG, "original string " + stringToAppend);
 //                Log.e(TAG, "appendedString: " + appendedString);
                 stringBuffer.add(appendedString);
-
             }
-            else{
-                stringBuffer.add(lightedLEDStringList.remove(0)); //show LED since is last, no need to append
-                send();
-            }
-
         }
+
+
     }
 
     public void send() {        //this function invoked when ack received

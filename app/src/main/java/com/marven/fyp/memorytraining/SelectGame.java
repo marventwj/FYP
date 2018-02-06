@@ -1,13 +1,9 @@
-package com.dfrobot.angelo.blunobasicdemo;
+package com.marven.fyp.memorytraining;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v7.widget.CardView;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class SelectGame extends BaseActivity {
@@ -16,12 +12,14 @@ public class SelectGame extends BaseActivity {
     private TextView game1NameText, game2NameText, game3NameText, game4NameText;
     private TextView game1DescText, game2DescText, game3DescText, game4DescText;
     Intent i ;
-    //LinearLayout ll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_game);
+
+//        DataHolder.setData("hello");
+
 
         i = new Intent (this, HowToPlay.class);
 
@@ -35,7 +33,6 @@ public class SelectGame extends BaseActivity {
         game3DescText = (TextView) findViewById(R.id.game3Desc);
         game4DescText = (TextView) findViewById(R.id.game4Desc);
 
-        //ll = (LinearLayout) findViewById(R.id.ll);
         gameCard1 = (CardView) findViewById(R.id.Game1Card);
         gameCard2 = (CardView) findViewById(R.id.Game2Card);
         gameCard3 = (CardView) findViewById(R.id.Game3Card);

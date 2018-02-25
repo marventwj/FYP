@@ -81,9 +81,9 @@ public class ColorBlobDetector {
     public void process(Mat rgbaImage) {
 
 
-        Imgproc.pyrDown(rgbaImage, mPyrDownMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
-        Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);         //Blurs an image and downsamples it.
-        Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);     //Converts an image from one color space (RGB to HSV) to another. src- mPyrDownMat ,dst - mHsvMat
+        //Imgproc.pyrDown(rgbaImage, mPyrDownMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
+        //Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);         //Blurs an image and downsamples it.
+        Imgproc.cvtColor(rgbaImage, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);     //Converts an image from one color space (RGB to HSV) to another. src- mPyrDownMat ,dst - mHsvMat
         Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);     //create a binary image
         Imgproc.dilate(mMask, mDilatedMask, new Mat());     //dilate means enlarge. src- mMask, dst - mDilatedMask
 
@@ -108,18 +108,56 @@ public class ColorBlobDetector {
         while (each.hasNext()) {
             MatOfPoint contour = each.next();
             if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
-                Core.multiply(contour, new Scalar(4,4), contour);
+                Core.multiply(contour, new Scalar(1,1), contour);
                 mContours.add(contour);
             }
         }
     }
 
 
+
+    public void processForFinger(Mat rgbaImage) {
+        //Imgproc.pyrDown(rgbaImage, mPyrDownMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
+        //Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);         //Blurs an image and downsamples it.
+        Imgproc.cvtColor(rgbaImage, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);     //Converts an image from one color space (RGB to HSV) to another. src- mPyrDownMat ,dst - mHsvMat
+        Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);     //create a binary image
+        Imgproc.dilate(mMask, mDilatedMask, new Mat());     //dilate means enlarge. src- mMask, dst - mDilatedMask
+
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        // mDIlatedMask - an enlarged binary image. mHierarchy - not used. RETR_EXTERNAL - retrieves only the extreme outer contours
+        //CV_CHAIN_APPROX_SIMPLE compresses horizontal, vertical, and diagonal segments and leaves only their end points
+
+        // Find max contour area
+        double maxArea = 0;
+        Iterator<MatOfPoint> each = contours.iterator();
+        while (each.hasNext()) {
+            MatOfPoint wrapper = each.next();
+            double area = Imgproc.contourArea(wrapper);
+            if (area > maxArea)
+                maxArea = area;
+        }
+
+        // Filter contours by area and resize to fit the original image size
+        mContours.clear();
+        each = contours.iterator();
+        while (each.hasNext()) {
+            MatOfPoint contour = each.next();
+            if (Imgproc.contourArea(contour) > 10000) {
+                Core.multiply(contour, new Scalar(1,1), contour);
+                mContours.add(contour);
+            }
+        }
+    }
+
+
+
+
     public void processForLightIntensity(Mat rgbaImage) {
 
         Imgproc.cvtColor(rgbaImage, mIntermediateMat, Imgproc.COLOR_RGB2GRAY);
         Imgproc.pyrDown(mIntermediateMat, mIntermediateMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
-        Imgproc.threshold(mIntermediateMat, mIntermediateMat,127, 255, Imgproc.THRESH_BINARY);  //based on light intensity, becomes black and white
+        Imgproc.threshold(mIntermediateMat, mIntermediateMat,100, 255, Imgproc.THRESH_BINARY);  //based on light intensity, becomes black and white
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(mIntermediateMat, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);   //find contour from black and white image
 

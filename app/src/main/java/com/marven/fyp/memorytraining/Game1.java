@@ -20,8 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 public class Game1 extends BaseActivity {
 
     private static final String TAG = "OCVSample::Activity";
-
-    int level , gameSelected = 1;
+    //int level , gameSelected = 1;
     private TextView topTextView;
     ArrayList<String> stringBuffer = new ArrayList<String>();
     ArrayList<String> lightedLEDStringList = new ArrayList<String>();
@@ -48,7 +47,7 @@ public class Game1 extends BaseActivity {
         topTextView = (TextView) findViewById(R.id.topTextView);
 
         //collect intent
-        level =  getIntent().getIntExtra("Level",0);
+        //level =  getIntent().getIntExtra("Level",0);
         i = new Intent(this, VerifyResults.class);
 
         //neccessary displays before start of game
@@ -59,15 +58,18 @@ public class Game1 extends BaseActivity {
         //easy mode
         if (DataHolder.getMode() == DataHolder.Mode.EASY) {
             //based on current level, generate the game, delay time is how long it will show on the board
-            if (level == 1) {
+            //if (level == 1) {
+            if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getEasyLevel1Time() * 1000;
                 numLED = DataHolder.getEasyLevel1NumLED();
                 numColour = DataHolder.getEasyLevel1NumColour();
-            } else if (level == 2) {
+            //} else if (level == 2) {
+            } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getEasyLevel2Time() * 1000;
                 numLED = DataHolder.getEasyLevel2NumLED();
                 numColour = DataHolder.getEasyLevel2NumColour();
-            } else if (level == 3) {
+           // } else if (level == 3) {
+            } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getEasyLevel3Time() * 1000;
                 numLED = DataHolder.getEasyLevel3NumLED();
                 numColour = DataHolder.getEasyLevel3NumColour();
@@ -77,15 +79,18 @@ public class Game1 extends BaseActivity {
         //medium mode
         else if (DataHolder.getMode() == DataHolder.Mode.MEDIUM) {
             //based on current level, generate the game, delay time is how long it will show on the board
-            if (level == 1) {
+            //if (level == 1) {
+            if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getMediumLevel1Time() * 1000;
                 numLED = DataHolder.getMediumLevel1NumLED();
                 numColour = DataHolder.getMediumLevel1NumColour();
-            } else if (level == 2) {
+            //} else if (level == 2) {
+            } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getMediumLevel2Time() * 1000;
                 numLED = DataHolder.getMediumLevel2NumLED();
                 numColour = DataHolder.getMediumLevel2NumColour();
-            } else if (level == 3) {
+            //} else if (level == 3) {
+            } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getMediumLevel3Time() * 1000;
                 numLED = DataHolder.getMediumLevel3NumLED();
                 numColour = DataHolder.getMediumLevel3NumColour();
@@ -95,15 +100,18 @@ public class Game1 extends BaseActivity {
         //hard mode
         else if (DataHolder.getMode() == DataHolder.Mode.HARD) {
             //based on current level, generate the game, delay time is how long it will show on the board
-            if (level == 1) {
+            //if (level == 1) {
+            if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getHardLevel1Time() * 1000;
                 numLED = DataHolder.getHardLevel1NumLED();
                 numColour = DataHolder.getHardLevel1NumColour();
-            } else if (level == 2) {
+            //} else if (level == 2) {
+            } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getHardLevel2Time() * 1000;
                 numLED = DataHolder.getHardLevel2NumLED();
                 numColour = DataHolder.getHardLevel2NumColour();
-            } else if (level == 3) {
+            //} else if (level == 3) {
+            } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getHardLevel3Time() * 1000;
                 numLED = DataHolder.getHardLevel3NumLED();
                 numColour = DataHolder.getHardLevel3NumColour();
@@ -126,8 +134,8 @@ public class Game1 extends BaseActivity {
                 i.putExtra("boardMatrix", getIntent().getSerializableExtra("boardMatrix"));
                 i.putExtra("generatedPlacement", generatedPlacement);
                 i.putStringArrayListExtra("lightedLEDStringList", lightedLEDStringList);
-                i.putExtra("Level",level);
-                i.putExtra("GameSelected",gameSelected);
+                //i.putExtra("Level",level);
+                //i.putExtra("GameSelected",gameSelected);
                 //progress.dismiss();
                 startActivity(i);
             }
@@ -140,7 +148,9 @@ public class Game1 extends BaseActivity {
 
     public void beforeStartDisplay() {
 
-        levelString += String.valueOf(level);// "1" should be a variable called level from intent. current level
+        //levelString += String.valueOf(level);// "1" should be a variable called level from intent. current level
+
+        levelString += String.valueOf(DataHolder.getLevel());
 
         //level X
         timer.schedule(new TimerTask() {
@@ -155,7 +165,8 @@ public class Game1 extends BaseActivity {
                     }
                 });
 
-                if (level == 1) {
+                //if (level == 1) {
+                if (DataHolder.getLevel() == 1) {
                     soundLevelOne.start();
                     soundLevelOne.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         public void onCompletion(MediaPlayer mp) {
@@ -164,7 +175,8 @@ public class Game1 extends BaseActivity {
                     });
                 }
 
-                else if (level == 2) {
+                //else if (level == 2) {
+                else if (DataHolder.getLevel() == 2) {
                     soundLevelTwo.start();
                     soundLevelTwo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         public void onCompletion(MediaPlayer mp) {
@@ -173,7 +185,8 @@ public class Game1 extends BaseActivity {
                     });
                 }
 
-                else if (level == 3) {
+                //else if (level == 3) {
+                else if (DataHolder.getLevel() == 3) {
                     soundLevelThree.start();
                     soundLevelThree.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         public void onCompletion(MediaPlayer mp) {
@@ -249,11 +262,33 @@ public class Game1 extends BaseActivity {
                 @Override
                 public void run() {
 
+                    String redRow0To3HexString="", redRow4To7HexString="";
+                    String greenRow0To3HexString="", greenRow4To7HexString="";
+                    String blueRow0To3HexString="", blueRow4To7HexString="";
+                    String yellowRow0To3HexString="", yellowRow4To7HexString="";
+                    String redRow0To3HexWithoutZerosString="", redRow4To7HexWithoutZerosString="";
+                    String greenRow0To3HexWithoutZerosString="", greenRow4To7HexWithoutZerosString="";
+                    String blueRow0To3HexWithoutZerosString="", blueRow4To7HexWithoutZerosString="";
+                    String yellowRow0To3HexWithoutZerosString="", yellowRow4To7HexWithoutZerosString="";
+                    String generatedString="";
+
+                    int bitPositionToChange;
+                    long redRow0To3 = 0;
+                    long redRow4To7 = 0;
+                    long greenRow0To3 = 0;
+                    long greenRow4To7 = 0;
+                    long blueRow0To3 = 0;
+                    long blueRow4To7 = 0;
+                    long yellowRow0To3 = 0;
+                    long yellowRow4To7 = 0;
+
+
                     //fill content of generatedPlacement array with 0's
                     for (int i = 0; i < 8; i++) {
                         Arrays.fill(generatedPlacement[i], '0');
                     }
 
+                    Log.e(TAG, "number of LED: " + numberOfLED);
                     for (int i = 0; i < numberOfLED; i++) {
 
                         //soundMP3.start();
@@ -270,28 +305,138 @@ public class Game1 extends BaseActivity {
                             //random generate 2 position number (each number between 0-7)
                             int min = 0;
                             int max = 7;
-                            row = random.nextInt(max - min) + min;  //random generate row
+                            row = random.nextInt(max - min + 1);  //random generate row
                             //row = 7;
-                            column = random.nextInt(max - min) + min;   //random generate column
-                            Log.e(TAG, "chosen random row is: " + row);
-                            Log.e(TAG, "chosen random column is: " + column);
+                            column = random.nextInt(max - min + 1);   //random generate column
+                            //Log.e(TAG, "chosen random row is: " + row);
+                            //Log.e(TAG, "chosen random column is: " + column);
 
-                            //update generated position and colour into 2d array (to be sent to next activity)
-                            if (generatedPlacement[row][column] == '0') { //if no colour have been generated at this array position
-                                generatedPlacement[row][column] = colour;
+                            //update generated position and colour into 2d array (to be sent to next activity), need to 7-row because of mirror
+                            if (generatedPlacement[7-row][column] == '0') { //if no colour have been generated at this array position
+                                generatedPlacement[7-row][column] = colour;
                                 occupied = false;
                             } else {
                                 occupied = true;
-                                Log.e(TAG, "occupied slot, re-generating " + column);
+                            //    Log.e(TAG, "occupied slot, re-generating " + column);
                             }
                         }
-                        //generate string based on colour and position(returns a string)
-                        String generatedString = stringGenerator(colour, row, column);
-                        //stringBuffer.add("0200000000CCFFFFFFFFFFFFFFFF");       //clear all LED
-                        //stringBuffer.add(generatedString);                      //light up based on random generated position and colour
-                        lightedLEDStringList.add(generatedString);
-                        //send();
+//                        //generate string based on colour and position(returns a string)
+//                        String generatedString = stringGenerator(colour, row, column);
+//                        //stringBuffer.add("0200000000CCFFFFFFFFFFFFFFFF");       //clear all LED
+//                        //stringBuffer.add(generatedString);                      //light up based on random generated position and colour
+//                        lightedLEDStringList.add(generatedString);
+//                        //send();
+
+                        //set specific bits position to be lighted up, which will be converted into hex string to be sent to the bluno board based so as to light up LED based on bluetooth protocol specification.
+                        int position = row*8 + column;  //row 0 column 0 is position 0 , row 0 column 1 is position 1, just a representation for the board.
+                        if (position <=31){
+                            bitPositionToChange = 31 - position;
+                            if (colour == 'r') {
+                                redRow0To3 += (long) java.lang.Math.pow(2, bitPositionToChange);    //set bit based on position
+                                redRow0To3HexWithoutZerosString = (Long.toString(redRow0To3, 16)).toUpperCase();
+                                //System.out.println("hex str: " + redRow0To3HexString);
+                            }
+                            else if (colour == 'g') {
+                                greenRow0To3 += (long) java.lang.Math.pow(2, bitPositionToChange);    //set bit based on position
+                                greenRow0To3HexWithoutZerosString = (Long.toString(greenRow0To3, 16)).toUpperCase();
+                            }
+                            else if (colour == 'b') {
+                                blueRow0To3 += (long) java.lang.Math.pow(2, bitPositionToChange);    //set bit based on position
+                                blueRow0To3HexWithoutZerosString = (Long.toString(blueRow0To3, 16)).toUpperCase();
+                            }
+                            else if (colour == 'y') {
+                                yellowRow0To3 += (long) java.lang.Math.pow(2, bitPositionToChange);    //set bit based on position
+                                yellowRow0To3HexWithoutZerosString = (Long.toString(yellowRow0To3, 16)).toUpperCase();
+                            }
+                        }
+                        else{
+                            bitPositionToChange = 63 - position;
+                            if (colour == 'r') {
+                                redRow4To7 += java.lang.Math.pow(2, bitPositionToChange);
+                                redRow4To7HexWithoutZerosString = (Long.toString(redRow4To7, 16)).toUpperCase();
+                                //System.out.println("hex str: " + redRow4To7HexString);
+                            }
+                            else if (colour == 'g') {
+                                greenRow4To7 += java.lang.Math.pow(2, bitPositionToChange);
+                                greenRow4To7HexWithoutZerosString = (Long.toString(greenRow4To7, 16)).toUpperCase();
+                            }
+                            else if (colour == 'b') {
+                                blueRow4To7 += java.lang.Math.pow(2, bitPositionToChange);
+                                blueRow4To7HexWithoutZerosString = (Long.toString(blueRow4To7, 16)).toUpperCase();
+                            }
+                            else if (colour == 'y') {
+                                yellowRow4To7 += java.lang.Math.pow(2, bitPositionToChange);
+                                yellowRow4To7HexWithoutZerosString = (Long.toString(yellowRow4To7, 16)).toUpperCase();
+                            }
+                        }
+
+
                     }
+
+                    for (int i=0; i<8; i++)
+                        for (int j=0 ;j<8;j++)
+                            Log.e(TAG, "generatedPlacement is " + generatedPlacement[i][j] + i + "" + j);
+
+
+
+                    //generate (8 - string.size) string of 0, to be concatanated with original string
+                    for (int i=0; i< (8-redRow0To3HexWithoutZerosString.length()); i++ )
+                       redRow0To3HexString += "0";
+                    for (int i=0; i< (8-redRow4To7HexWithoutZerosString.length()); i++ )
+                        redRow4To7HexString += "0";
+
+                    redRow0To3HexString += redRow0To3HexWithoutZerosString;
+                    redRow4To7HexString += redRow4To7HexWithoutZerosString;
+
+                    Log.e(TAG, "red Row0 To Row3 after adding zeroes : " + redRow0To3HexString);
+                    Log.e(TAG, "red Row4 To Row7 after adding zeroes : " + redRow4To7HexString);
+
+
+                    for (int i=0; i< (8-greenRow0To3HexWithoutZerosString.length()); i++ )
+                        greenRow0To3HexString += "0";
+                    for (int i=0; i< (8-greenRow4To7HexWithoutZerosString.length()); i++ )
+                        greenRow4To7HexString += "0";
+
+                    greenRow0To3HexString += greenRow0To3HexWithoutZerosString;
+                    greenRow4To7HexString += greenRow4To7HexWithoutZerosString;
+
+                    Log.e(TAG, "green Row0 To Row3 after adding zeroes : " + greenRow0To3HexString);
+                    Log.e(TAG, "green Row4 To Row7 after adding zeroes : " + greenRow4To7HexString);
+
+                    for (int i=0; i< (8-blueRow0To3HexWithoutZerosString.length()); i++ )
+                        blueRow0To3HexString += "0";
+                    for (int i=0; i< (8-blueRow4To7HexWithoutZerosString.length()); i++ )
+                        blueRow4To7HexString += "0";
+
+                    blueRow0To3HexString += blueRow0To3HexWithoutZerosString;
+                    blueRow4To7HexString += blueRow4To7HexWithoutZerosString;
+
+                    Log.e(TAG, "blue Row0 To Row3 after adding zeroes : " + blueRow0To3HexString);
+                    Log.e(TAG, "blue Row4 To Row7 after adding zeroes : " + blueRow4To7HexString);
+
+                    for (int i=0; i< (8-yellowRow0To3HexWithoutZerosString.length()); i++ )
+                        yellowRow0To3HexString += "0";
+                    for (int i=0; i< (8-yellowRow4To7HexWithoutZerosString.length()); i++ )
+                        yellowRow4To7HexString += "0";
+
+                    yellowRow0To3HexString += yellowRow0To3HexWithoutZerosString;
+                    yellowRow4To7HexString += yellowRow4To7HexWithoutZerosString;
+
+                    Log.e(TAG, "yellow Row0 To Row3 after adding zeroes : " + yellowRow0To3HexString);
+                    Log.e(TAG, "yellow Row4 To Row7 after adding zeroes : " + yellowRow4To7HexString);
+
+
+                    //generate string for all 4 colours
+                    generatedString = generateRowString('r',redRow0To3HexString, redRow4To7HexString);
+                    lightedLEDStringList.add(generatedString);
+                    generatedString = generateRowString('g',greenRow0To3HexString, greenRow4To7HexString);
+                    lightedLEDStringList.add(generatedString);
+                    generatedString = generateRowString('b',blueRow0To3HexString, blueRow4To7HexString);
+                    lightedLEDStringList.add(generatedString);
+                    generatedString = generateRowString('y',yellowRow0To3HexString, yellowRow4To7HexString);
+                    lightedLEDStringList.add(generatedString);
+
+                    //send strings via bluetooth to light up the LEDs
                     lightUpGeneratedPlacement();
 
                     runOnUiThread(new Runnable() {      //anything that updates view need to use this.
@@ -300,8 +445,6 @@ public class Game1 extends BaseActivity {
                             topTextView.setText("");
                         }
                     });
-
-
 
 //                    progress = new ProgressDialog(Game1.this);
 //                    progress.setMessage("");
@@ -404,11 +547,40 @@ public void countDownDisplay(int timeLEDOn) {
 
 
 
-    public String stringGenerator(char colour, int row, int column) {    //meant for single LED and show LED straight (uses LED protocol instead of row protocol)
+//    public String stringGenerator(char colour, int row, int column) {    //meant for single LED and show LED straight (uses LED protocol instead of row protocol)
+//        //0100FFFFFFCCXYFF -> XY = ROW COLUMN
+//
+//        String string = "";
+//        string += "0100";   //opcode and function
+//
+//        if (colour == 'r' || colour == 'y') //R
+//            string += "FF";
+//        else //else is g or b
+//            string += "00";
+//
+//        if (colour == 'g' || colour == 'y') //G
+//            string += "FF";
+//        else
+//            string += "00";
+//
+//        if (colour == 'b')  //B
+//            string += "FF";
+//        else
+//            string += "00";
+//
+//        string += "CC";     //'brightness'
+//
+//        string += String.valueOf(row);
+//        string += String.valueOf(column);
+//        string += "FF";       //no more further LED to light up
+//        return string;
+//    }
+
+    public String generateRowString(char colour, String row0To3Hex, String row4To7Hex) {    //meant for single LED and show LED straight (uses LED protocol instead of row protocol)
         //0100FFFFFFCCXYFF -> XY = ROW COLUMN
 
         String string = "";
-        string += "0100";   //opcode and function
+        string += "0300";   //opcode and function
 
         if (colour == 'r' || colour == 'y') //R
             string += "FF";
@@ -427,9 +599,8 @@ public void countDownDisplay(int timeLEDOn) {
 
         string += "CC";     //'brightness'
 
-        string += String.valueOf(row);
-        string += String.valueOf(column);
-        string += "FF";       //no more further LED to light up
+        string += row0To3Hex;
+        string += row4To7Hex;
         return string;
     }
 
@@ -445,7 +616,7 @@ public void countDownDisplay(int timeLEDOn) {
             }
             else{
                     String stringToAppend = lightedLEDStringList.get(i);
-                    String appendedString = stringToAppend.substring(0, 1) + '0' + stringToAppend.substring(2);  //append first byte into "00" //don't show LED
+                    String appendedString = stringToAppend.substring(0, 1) + '2' + stringToAppend.substring(2);  //append first byte into "02" //don't show LED (this uses row string)
 //                Log.e(TAG, "original string " + stringToAppend);
 //                Log.e(TAG, "appendedString: " + appendedString);
                     stringBuffer.add(appendedString);
@@ -461,7 +632,7 @@ public void countDownDisplay(int timeLEDOn) {
         if (!stringBuffer.isEmpty()) {    //ensures no message sent if no more string.
             Log.e(TAG, "SENT");
             Log.e(TAG, "charAt(1) = " + stringBuffer.get(0).charAt(1) );
-            if (stringBuffer.get(0).charAt(1) == '1' ) {            //if stringBuffer.length == 1 && opcode == show LED && RGB got colour
+            if (stringBuffer.get(0).charAt(1) == '1' || stringBuffer.get(0).charAt(1) == '3') {            //if stringBuffer.length == 1 && opcode == show LED && RGB got colour
                 Log.e(TAG, "enter charAt(1) = 1");
                 soundMP3 = MediaPlayer.create(this, R.raw.filling_your_inbox);
                 soundMP3.start();                                     //play sound

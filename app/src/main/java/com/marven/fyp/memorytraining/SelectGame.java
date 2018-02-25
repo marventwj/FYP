@@ -18,9 +18,6 @@ public class SelectGame extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_game);
 
-//        DataHolder.setData("hello");
-
-
         i = new Intent (this, HowToPlay.class);
 
         game1NameText = (TextView) findViewById(R.id.game1Name);
@@ -51,7 +48,8 @@ public class SelectGame extends BaseActivity {
         gameCard1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                i.putExtra("GameSelected",1);
+                //i.putExtra("GameSelected",1);
+                DataHolder.setGameSelected(1);
                 startActivity(i);
             }
         });
@@ -59,7 +57,8 @@ public class SelectGame extends BaseActivity {
         gameCard2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                i.putExtra("GameSelected",2);
+                //i.putExtra("GameSelected",2);
+                DataHolder.setGameSelected(2);
                 startActivity(i);
             }
         });
@@ -67,7 +66,8 @@ public class SelectGame extends BaseActivity {
         gameCard3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                i.putExtra("GameSelected",3);
+                //i.putExtra("GameSelected",3);
+                DataHolder.setGameSelected(3);
                 startActivity(i);
             }
         });
@@ -75,7 +75,8 @@ public class SelectGame extends BaseActivity {
         gameCard4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                i.putExtra("GameSelected",4);
+                //i.putExtra("GameSelected",4);
+                DataHolder.setGameSelected(4);
                 startActivity(i);
             }
         });

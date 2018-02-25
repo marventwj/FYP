@@ -27,4 +27,5 @@
     <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_difficulty_settings">DifficultySettings</string>
     <string name="title_activity_select_difficulty">SelectDifficulty</string>
+    <string name="title_activity_finger">FingerActivity</string>
 </resources>

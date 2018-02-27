@@ -17,6 +17,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase;
@@ -26,6 +27,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +35,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.SurfaceView;
 
-public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
+import static com.marven.fyp.memorytraining.CameraCheckChipsRemoved.fingerBufferLength;
+
+public class VerifyResults extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String  TAG              = "OCVSample::Activity";
     public static final int chipBufferLengthFromCentre = 35;
 
@@ -58,9 +62,11 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
     char[][] generatedPlacement = new char[8][8];
     ArrayList<String> lightedLEDStringList = new ArrayList<String>();
     ArrayList<String> stringBuffer = new ArrayList<String>();
+    ArrayList<Integer> generatedSequence = new ArrayList<Integer>();
 
     MediaPlayer placeTheChipsMP3;
     MediaPlayer soundMP3;
+    MediaPlayer LEDMP3;
 
     private boolean              pressedStartButton = false;
     private Mat mRgba;
@@ -112,16 +118,19 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);   //no need?
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        placeTheChipsMP3 = MediaPlayer.create(this, R.raw.you_can_place_the_chips_now);
-        soundMP3 = MediaPlayer.create(this, R.raw.press_start_when_you_are_ready);
-        placeTheChipsMP3.start();       //press start when you are ready
-        placeTheChipsMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                soundMP3.start();
-                mp.release();
-            }
-        }); //press start when you are ready
+
+        if (DataHolder.getGameSelected() == 1) {
+            placeTheChipsMP3 = MediaPlayer.create(this, R.raw.you_can_place_the_chips_now);
+            soundMP3 = MediaPlayer.create(this, R.raw.press_start_when_you_are_ready);
+            placeTheChipsMP3.start();       //press start when you are ready
+            placeTheChipsMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    soundMP3.start();
+                    mp.release();
+                }
+            }); //press start when you are ready
+        }
 
         generatedPlacement = (char [][])getIntent().getSerializableExtra("generatedPlacement");    //get array XY of board from previous activity
         //see generated placement of chips
@@ -135,9 +144,19 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
 //                Log.e(TAG, "x" + a + ": " + boardMatrix[a][b].x() + "y" + b + ": " + boardMatrix[a][b].y());
 //            }
         lightedLEDStringList = getIntent().getStringArrayListExtra("lightedLEDStringList");
+        generatedSequence = getIntent().getIntegerArrayListExtra("generatedSequence");
 
        // level =  getIntent().getIntExtra("Level",0);
        // gameSelected =  getIntent().getIntExtra("GameSelected",0);
+
+
+        //print generated Sequence
+        for (int i = 0; i < generatedSequence.size(); i++) {
+            Log.e(TAG, "generated sequence: " + generatedSequence.get(i));
+        }
+        Log.e(TAG, " ");
+
+
 
     }
 
@@ -222,9 +241,9 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
         yellowBlobColorHsv.val[1] = 177; //S
         yellowBlobColorHsv.val[2] = 248; //V
 
-        fingerBlobColorHsv.val[0] = 12;   //H
-        fingerBlobColorHsv.val[1] = 110;   //S
-        fingerBlobColorHsv.val[2] = 74;   //V   //239
+        fingerBlobColorHsv.val[0] = 14;   //H
+        fingerBlobColorHsv.val[1] = 143;   //S
+        fingerBlobColorHsv.val[2] = 137;   //V   //239
 
         pinkButtonBlobColorHsv.val[0] = 246;   //H
         pinkButtonBlobColorHsv.val[1] = 86;   //S
@@ -240,8 +259,8 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
         greenDetector.setColorRadius(new Scalar(15,50,85,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         blueDetector.setColorRadius(new Scalar(30,50,105,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         yellowDetector.setColorRadius(new Scalar(15,50,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        fingerDetector.setColorRadius(new Scalar(10,40,130,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        pinkButtonDetector.setColorRadius(new Scalar(25,50,50,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        fingerDetector.setColorRadius(new Scalar(10,70,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
 
         //mDetector.setHsvColor(mBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
         redDetector.setHsvColor(redBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
@@ -253,7 +272,7 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
 
         //Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
         Imgproc.resize(redDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
-        Imgproc.resize(greenDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);      //resize the image to specture size
+        Imgproc.resize(greenDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
         Imgproc.resize(blueDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
         Imgproc.resize(yellowDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
         Imgproc.resize(fingerDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
@@ -273,12 +292,13 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
     }
 
     Point[] points;
-    double minValueX, minValueY, maxValueX, maxValueY, centreX, centreY;
-    List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
-    List<MatOfPoint> redContours;// = new ArrayList<MatOfPoint>();
-    List<MatOfPoint> greenContours;// = new ArrayList<MatOfPoint>();
-    List<MatOfPoint> blueContours;// = new ArrayList<MatOfPoint>();
-    List<MatOfPoint> yellowContours;// = new ArrayList<MatOfPoint>();
+    double minValueX, minValueY, maxValueX, maxValueY, centreX, centreY, valueX , valueY;
+    List<MatOfPoint> redContours;
+    List<MatOfPoint> greenContours;
+    List<MatOfPoint> blueContours;
+    List<MatOfPoint> yellowContours;
+    List<MatOfPoint> pinkButtonContours;
+    List<MatOfPoint> fingerContours;
 
     ArrayList<PointXY> redCentrePointList = new ArrayList<PointXY>();
     ArrayList<PointXY> greenCentrePointList = new ArrayList<PointXY>();
@@ -286,30 +306,109 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
     ArrayList<PointXY> yellowCentrePointList = new ArrayList<PointXY>();
 
     double redCentrePointX, redCentrePointY, greenCentrePointX, greenCentrePointY, blueCentrePointX , blueCentrePointY, yellowCentrePointX, yellowCentrePointY;
-
+    RotatedRect rect;
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
 
+        if (DataHolder.getGameSelected() == 1) {
+            determineIfUserPressedStart();
+            verifyGame1();
+        }
+        if (DataHolder.getGameSelected() == 2)
+            verifyGame2();
+
+        return mRgba;
+    }
+
+    private void determineIfUserPressedStart(){
+        //detect pink button colour
+        pinkButtonDetector.process(mRgba);
+        pinkButtonContours = pinkButtonDetector.getContours();
+        filteredPinkButtonContours = filterColourContours(pinkButtonContours);
+        Imgproc.drawContours(mRgba, filteredPinkButtonContours, -1, new Scalar (255, 0 , 255 , 255));   //draw pink contours on the screen
+        //--
+
+        //detect finger colour
+        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
+        fingerDetector.processForFinger(mRgba);
+        fingerContours = fingerDetector.getContours();
+        //--
+
+        if (fingerContours.size() != 0 ) {  //filter out wrong finger detections
+            PointXY fingerTipXY = detectFinger();
+            checkIfUserPressPinkButton(fingerTipXY);
+        }
+    }
+
+    //PointXY fingerTipXY;
+
+    private void checkIfUserPressPinkButton(PointXY fingerTipXY){
+        PointXY pinkButtonXY = getMaxPointXY(filteredPinkButtonContours);   //get point of max Y of pink button
+        if (filteredPinkButtonContours.size() != 0) {  //if pink button is found on camera
+            if ((pinkButtonXY.y() > (fingerTipXY.y() - fingerBufferLength)) && (pinkButtonXY.y() < (fingerTipXY.y() + fingerBufferLength))) { //use first column as reference to check which column the chip lies on
+                if ((pinkButtonXY.x() > (fingerTipXY.x() - fingerBufferLength)) && (pinkButtonXY.x() < (fingerTipXY.x() + fingerBufferLength))) {
+                    pressedStartButton = true;
+                    Log.e(TAG, "START!");
+                }
+            }
+        }
+    }
+
+    private PointXY detectFinger(){
+        rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(0).toArray()));
+        double boundWidth = rect.size.width;
+        double boundHeight = rect.size.height;
+        int boundPos = 0;
+        for (int i = 1; i < fingerContours.size(); i++) {
+            rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(i).toArray()));
+            if (rect.size.width * rect.size.height > boundWidth * boundHeight) {
+                boundWidth = rect.size.width;
+                boundHeight = rect.size.height;
+                boundPos = i;
+            }
+        }
+        Rect boundRect = Imgproc.boundingRect(new MatOfPoint(fingerContours.get(boundPos).toArray()));
+        Imgproc.rectangle(mRgba, boundRect.tl(), boundRect.br(), new Scalar(255, 255, 255, 255), 2, 8, 0);   // white
+        double a = boundRect.br().y - boundRect.tl().y;
+        a = a * 0.7;
+        a = boundRect.tl().y + a;
+        Imgproc.rectangle(mRgba, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0);
+        MatOfPoint2f pointMat = new MatOfPoint2f();
+        Imgproc.approxPolyDP(new MatOfPoint2f(fingerContours.get(boundPos).toArray()), pointMat, 3, true);
+        fingerContours.set(boundPos, new MatOfPoint(pointMat.toArray()));
+        MatOfInt hull = new MatOfInt();
+        MatOfInt4 convexDefect = new MatOfInt4();
+        Imgproc.convexHull(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull);
+        Imgproc.convexityDefects(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull, convexDefect);
+        List<MatOfPoint> hullPoints = new LinkedList<MatOfPoint>();
+        List<Point> listPo = new LinkedList<Point>();
+        for (int j = 0; j < hull.toList().size(); j++) {
+            listPo.add(fingerContours.get(boundPos).toList().get(hull.toList().get(j)));
+        }
+        MatOfPoint e = new MatOfPoint();
+        e.fromList(listPo);
+        hullPoints.add(e);
+        Imgproc.drawContours(mRgba, hullPoints, -1, new Scalar(255, 0, 255, 255), 3);   //pink
+        PointXY fingerTipXY = getMaxPointXY(hullPoints);   //get point of max Y of the finger tip
+        return fingerTipXY;
+    }
+
+
+    private void verifyGame1(){
         //detecting chips
         redDetector.process(mRgba);
         greenDetector.process(mRgba);
         blueDetector.process(mRgba);
         yellowDetector.process(mRgba);
-        pinkButtonDetector.process(mRgba);
-
-        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
-        fingerDetector.processForFinger(mRgba);
 
         //get the contours after detector.process
         redContours = redDetector.getContours();
         greenContours = greenDetector.getContours();
         blueContours = blueDetector.getContours();
         yellowContours = yellowDetector.getContours();
-        pinkButtonContours = pinkButtonDetector.getContours();
-        fingerContours = fingerDetector.getContours();
-//
+
 //        Imgproc.drawContours(mRgba, redContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
 //        Imgproc.drawContours(mRgba, greenContours, -1,  new Scalar(0,255,0,255));   //draw green contours on the screen
 //        Imgproc.drawContours(mRgba, blueContours, -1,  new Scalar(0,0,255,255));   //draw blue contours on the screen
@@ -325,62 +424,6 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
         Imgproc.drawContours(mRgba, filteredGreenContours, -1,  new Scalar(0,255,0,255));   //draw red contours on the screen
         Imgproc.drawContours(mRgba, filteredBlueContours, -1,  new Scalar(0,0,255,255));   //draw red contours on the screen
         Imgproc.drawContours(mRgba, filteredYellowContours, -1,  new Scalar(255,255,0,255));   //draw red contours on the screen
-        Imgproc.drawContours(mRgba, pinkButtonContours, -1, new Scalar (255, 0 , 255 , 255));   //draw pink contours on the screen
-
-
-
-
-
-        //process fingers to check start press
-        if (fingerContours.size() != 0 ) {//filter out wrong detections
-            rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(0).toArray()));
-            double boundWidth = rect.size.width;
-            double boundHeight = rect.size.height;
-            int boundPos = 0;
-            for (int i = 1; i < fingerContours.size(); i++) {
-                rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(i).toArray()));
-                if (rect.size.width * rect.size.height > boundWidth * boundHeight) {
-                    boundWidth = rect.size.width;
-                    boundHeight = rect.size.height;
-                    boundPos = i;
-                }
-            }
-            Rect boundRect = Imgproc.boundingRect(new MatOfPoint(fingerContours.get(boundPos).toArray()));
-            Imgproc.rectangle(mRgba, boundRect.tl(), boundRect.br(), new Scalar(255, 255, 255, 255), 2, 8, 0);   // white
-            double a = boundRect.br().y - boundRect.tl().y;
-            a = a * 0.7;
-            a = boundRect.tl().y + a;
-            Imgproc.rectangle(mRgba, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0);
-            MatOfPoint2f pointMat = new MatOfPoint2f();
-            Imgproc.approxPolyDP(new MatOfPoint2f(fingerContours.get(boundPos).toArray()), pointMat, 3, true);
-            fingerContours.set(boundPos, new MatOfPoint(pointMat.toArray()));
-            MatOfInt hull = new MatOfInt();
-            MatOfInt4 convexDefect = new MatOfInt4();
-            Imgproc.convexHull(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull);
-            Imgproc.convexityDefects(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull, convexDefect);
-            List<MatOfPoint> hullPoints = new LinkedList<MatOfPoint>();
-            List<Point> listPo = new LinkedList<Point>();
-            for (int j = 0; j < hull.toList().size(); j++) {
-                listPo.add(fingerContours.get(boundPos).toList().get(hull.toList().get(j)));
-            }
-            MatOfPoint e = new MatOfPoint();
-            e.fromList(listPo);
-            hullPoints.add(e);
-            Imgproc.drawContours(mRgba, hullPoints, -1, new Scalar(255, 0, 255, 255), 3);   //pink
-            PointXY fingerTipXY = getMaxPointXY(hullPoints);   //get the XY of the finger tip
-            PointXY pinkButtonXY = getMaxPointXY(pinkButtonContours);
-
-            if (pinkButtonContours.size() != 0) {
-                if ((pinkButtonXY.y() > (fingerTipXY.y() - fingerBufferLength)) && (pinkButtonXY.y() < (fingerTipXY.y() + fingerBufferLength))) { //use first column as reference to check which column the chip lies on
-                    if ((pinkButtonXY.x() > (fingerTipXY.x() - fingerBufferLength)) && (pinkButtonXY.x() < (fingerTipXY.x() + fingerBufferLength))) {
-                        pressedStartButton = true;
-                        Log.e(TAG, "START!");
-                    }
-                }
-            }
-        }
-
-
 
 
         //if screen is touched (simulate start button), verify results
@@ -438,6 +481,7 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
 
                                 Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
                                 Log.e(TAG, "register chip placement r");
+                                Log.e(TAG, " ");
 
                                 break;
                             }
@@ -475,6 +519,7 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
 
                                 Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
                                 Log.e(TAG, "register chip placement g");
+                                Log.e(TAG, " ");
 
                                 break;
                             }
@@ -556,10 +601,113 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
             //i.putExtra("GameSelected", gameSelected);
             startActivity(i);
         }
-
         pressedStartButton = false;
-        return mRgba;
+
     }
+
+    PointXY fingerTipXY = null;
+    int prevFingerPositionOnBoard= 0, fingerPositionOnBoard = 0;
+    boolean lose = false;
+    int generatedSequenceIndex = 0;
+    long startTime;
+
+    private void verifyGame2(){
+        boolean fingerInsideBoard = false;
+        //detect finger colour
+        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
+        fingerDetector.processForFinger(mRgba);
+        fingerContours = fingerDetector.getContours();
+        //--
+
+        if (fingerContours.size() != 0 ) {  //filter out wrong finger detections
+            fingerTipXY = detectFinger();
+
+//if (fingerTipXY in area of board)
+//if (fingerTipXY almost same for 1 second)
+            //check finger current position
+            for (int j = 0; j < 8; j++) {       //iterate through first column to determine the row(j) it is at
+                if ((boardMatrix[j][0].y() > (fingerTipXY.y() - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (fingerTipXY.y() + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
+                    //check X
+                    for (int k = 0; k < 8; k++) {    //iterate through the rows
+                        if ((boardMatrix[j][k].x() > (fingerTipXY.x() - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (fingerTipXY.x() + chipBufferLengthFromCentre))) {
+
+                            fingerInsideBoard = true;
+                            fingerPositionOnBoard= Integer.valueOf(String.valueOf(j) + String.valueOf(k));   //combine row and column into an integer number
+                            //Log.e(TAG, "finger within board");
+
+
+                            //if current finger position not same position as previous finger position
+                            if (prevFingerPositionOnBoard != fingerPositionOnBoard) {
+                                startTime = SystemClock.elapsedRealtime(); //reset timer
+                            }
+
+                            long endTime = SystemClock.elapsedRealtime();
+                            long elapsedMilliSeconds = endTime - startTime;
+                            //double elapsedSeconds = elapsedMilliSeconds / 1000.0;
+
+                            //means finger at same position for 1 second
+                            if (elapsedMilliSeconds > 1000) {
+                                Log.e(TAG, "finger placement is: " + j + k);
+                                //verify if user lost by comparing finger current position with generated sequence
+                                if (fingerPositionOnBoard != generatedSequence.get(generatedSequenceIndex)) {
+                                    //user lost, proceed to score page
+                                    Log.e(TAG, "user lost!");
+                                    win = false;
+                                    i.putExtra("win", win);
+                                    startActivity(i);
+
+                                }
+
+                                //user for correct for that particular sequence
+                                else {
+                                    Log.e(TAG, "correct for this sequence");
+                                    LEDMP3 = MediaPlayer.create(this, R.raw.filling_your_inbox);
+                                    LEDMP3.start();                                     //play sound
+                                    LEDMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                        public void onCompletion(MediaPlayer mp) {
+                                            mp.release();
+
+                                        };
+                                    });
+
+                                    generatedSequenceIndex++;
+                                    startTime = SystemClock.elapsedRealtime(); //reset timer
+                                }
+
+                                //if all sequence correct
+                                if (generatedSequenceIndex == generatedSequence.size()) {
+                                    //user won, proceed to score page
+                                    Log.e(TAG, "user won!");
+                                    win = true;
+                                    i.putExtra("win", win);
+                                    startActivity(i);
+                                }
+                            }
+
+                            //haven't reach 1 second, continue observing
+                            else {
+                                prevFingerPositionOnBoard = fingerPositionOnBoard;
+                            }
+
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //reset timer if finger not inside board
+            if (!fingerInsideBoard) {
+                startTime = SystemClock.elapsedRealtime(); //reset timer
+            }
+
+
+        }
+
+
+
+    }
+
 
 
     private void lightUpGeneratedPlacement(){
@@ -587,9 +735,9 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
             Log.e(TAG, "charAt(1) = " + stringBuffer.get(0).charAt(1) );
             if (stringBuffer.get(0).charAt(1) == '1' || stringBuffer.get(0).charAt(1) == '3' ) {            //if stringBuffer.length == 1 && opcode == show LED
                 Log.e(TAG, "enter charAt(1) = 1");
-                soundMP3 = MediaPlayer.create(this, R.raw.filling_your_inbox);
-                soundMP3.start();                                     //play sound
-                soundMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                LEDMP3 = MediaPlayer.create(this, R.raw.filling_your_inbox);
+                LEDMP3.start();                                     //play sound
+                LEDMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
                         mp.release();
 
@@ -680,6 +828,7 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
     List<MatOfPoint> filteredGreenContours = new ArrayList<MatOfPoint>();
     List<MatOfPoint> filteredBlueContours = new ArrayList<MatOfPoint>();
     List<MatOfPoint> filteredYellowContours = new ArrayList<MatOfPoint>();
+    List<MatOfPoint> filteredPinkButtonContours = new ArrayList<MatOfPoint>();
 
 
     private List<MatOfPoint> filterColourContours(List<MatOfPoint> colouredContourList) {
@@ -720,6 +869,42 @@ public class VerifyResults extends CameraCheckChipsRemoved implements View.OnTou
         }
 
         return temporaryFilteredColour;
+    }
+
+
+    protected PointXY getMaxPointXY(List<MatOfPoint> contours) {
+        PointXY maxPoint = null;
+        for (int k = 0; k < contours.size(); k++) {
+            points = contours.get(k).toArray();
+            minValueX = points[0].x;
+            minValueY = points[0].y;
+            for (int i = 1; i < points.length; i++) {
+                if (points[i].x < minValueX) {
+                    minValueX = points[i].x;
+                }
+                if (points[i].y < minValueY) {
+                    minValueY = points[i].y;
+                }
+            }
+
+            maxValueX = points[0].x;
+            maxValueY = points[0].y;
+            for (int i = 1; i < points.length; i++) {
+                if (points[i].x > maxValueX) {
+                    maxValueX = points[i].x;
+                }
+                if (points[i].y > maxValueY) {
+                    maxValueY = points[i].y;
+                    valueX = points[i].x;
+                }
+            }
+
+            maxPoint = new PointXY(valueX, maxValueY);
+            //get min cause mirror reflect
+            //Log.e(TAG, "min finger value Y: " + minValueY);
+            //Log.e(TAG, "min finger value X: " + minValueX);
+        }
+        return maxPoint;
     }
 
 

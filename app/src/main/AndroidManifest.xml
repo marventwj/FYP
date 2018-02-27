@@ -27,15 +27,15 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
         android:screenOrientation="landscape"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".MainPage">
 
-
-         <activity android:name=".MainPage">
-        <!-- <activity android:name=".VerifyResults"> -->
-         <!--<activity android:name=".CameraCheckChipsColour">-->
-        <!-- <activity android:name=".FingerActivity"> -->
-         <!--<activity android:name=".CameraCheckChipsRemoved">-->
+            <!-- <activity android:name=".VerifyResults"> -->
+            <!-- <activity android:name=".CameraCheckChipsColour"> -->
+            <!-- <activity android:name=".FingerActivity"> -->
+            <!-- <activity android:name=".CameraCheckChipsRemoved"> -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -52,11 +52,14 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
         <activity android:name=".SelectGame" />
         <activity android:name=".HowToPlay" />
         <activity android:name=".Score" />
-        <activity android:name=".CameraCheckChipsColour" />
-        <activity android:name=".CameraCheckChipsRemoved"/>
+        <!-- <activity android:name=".CameraCheckChipsColour" /> -->
+        <activity android:name=".CameraCheckChipsRemoved" />
         <activity android:name=".DifficultySettings" />
         <activity android:name=".SelectDifficulty" />
-      <!--  <activity android:name=".MainPage" /> -->
+        <!-- <activity android:name=".MainPage" /> -->
+        <activity
+            android:name=".Game2"
+            android:label="@string/title_activity_game2"></activity>
     </application>
 
 </manifest>

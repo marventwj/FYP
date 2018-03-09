@@ -67,6 +67,31 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     MediaPlayer placeTheChipsMP3;
     MediaPlayer soundMP3;
     MediaPlayer LEDMP3;
+    MediaPlayer wrongMP3;
+
+    PointXY fingerTipXY = null;
+    int prevFingerPositionOnBoard= 0, fingerPositionOnBoard = 0;
+    boolean lose = false;
+    int generatedSequenceIndex = 0;
+    long startTime, game3StartTime, elapsedSecondsUntilPressStart;
+
+    Point[] points;
+    double minValueX, minValueY, maxValueX, maxValueY, centreX, centreY, valueX , valueY;
+    List<MatOfPoint> redContours;
+    List<MatOfPoint> greenContours;
+    List<MatOfPoint> blueContours;
+    List<MatOfPoint> yellowContours;
+    List<MatOfPoint> pinkButtonContours;
+    List<MatOfPoint> fingerContours;
+
+    ArrayList<PointXY> redCentrePointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> greenCentrePointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> blueCentrePointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> yellowCentrePointList = new ArrayList<PointXY>();
+
+    double redCentrePointX, redCentrePointY, greenCentrePointX, greenCentrePointY, blueCentrePointX , blueCentrePointY, yellowCentrePointX, yellowCentrePointY;
+    RotatedRect rect;
+
 
     private boolean              pressedStartButton = false;
     private Mat mRgba;
@@ -108,9 +133,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
         i = new Intent(this, Score.class);
 
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);   //no need?
         setContentView(R.layout.activity_camera);
 
@@ -132,6 +154,12 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             }); //press start when you are ready
         }
 
+        //  TODO Auto-generated method stub
+        //need add this for game 3
+        //game3StartTime = SystemClock.elapsedRealtime(); //reset timer
+        //elapsedSecondsUntilPressStart = getIntent().getLongExtra("elapsedSecondsUntilPressStart", elapsedSecondsUntilPressStart);
+
+
         generatedPlacement = (char [][])getIntent().getSerializableExtra("generatedPlacement");    //get array XY of board from previous activity
         //see generated placement of chips
 //        for (int i=0; i<8; i++)
@@ -151,10 +179,12 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
 
         //print generated Sequence
-        for (int i = 0; i < generatedSequence.size(); i++) {
-            Log.e(TAG, "generated sequence: " + generatedSequence.get(i));
+        if (DataHolder.getGameSelected()==2) {
+            for (int i = 0; i < generatedSequence.size(); i++) {
+                Log.e(TAG, "generated sequence: " + generatedSequence.get(i));
+            }
+            Log.e(TAG, " ");
         }
-        Log.e(TAG, " ");
 
 
 
@@ -216,9 +246,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         SPECTRUM_SIZE = new Size(200, 64);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
+        // 2 188 190
         redBlobColorHsv.val[0] = 2;   //H  //250
         redBlobColorHsv.val[1] = 188;   //S   //136
-        redBlobColorHsv.val[2] = 190;   //V
+        redBlobColorHsv.val[2] = 140;   //V
 
         //hsv : 95, 126, 134, 0 - old green chip
         greenBlobColorHsv.val[0] = 82;  //H
@@ -255,12 +286,21 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
 
-        redDetector.setColorRadius(new Scalar(5,50,80,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        greenDetector.setColorRadius(new Scalar(15,50,85,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        blueDetector.setColorRadius(new Scalar(30,50,105,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        yellowDetector.setColorRadius(new Scalar(15,50,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        fingerDetector.setColorRadius(new Scalar(10,70,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        //5 50 80
+//        redDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+//        greenDetector.setColorRadius(new Scalar(15,50,85,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+//        blueDetector.setColorRadius(new Scalar(30,50,105,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+//        yellowDetector.setColorRadius(new Scalar(15,50,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+//        fingerDetector.setColorRadius(new Scalar(10,70,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+//        pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+
+        redDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        greenDetector.setColorRadius(new Scalar(15,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        blueDetector.setColorRadius(new Scalar(30,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        yellowDetector.setColorRadius(new Scalar(15,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        fingerDetector.setColorRadius(new Scalar(10,70,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+
 
         //mDetector.setHsvColor(mBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
         redDetector.setHsvColor(redBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
@@ -286,35 +326,21 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     }
 
     public boolean onTouch(View v, MotionEvent event) {     //when press on camera screen
-
         pressedStartButton = true;    //simulate button pressed
         return false; // don't need subsequent touch events
     }
 
-    Point[] points;
-    double minValueX, minValueY, maxValueX, maxValueY, centreX, centreY, valueX , valueY;
-    List<MatOfPoint> redContours;
-    List<MatOfPoint> greenContours;
-    List<MatOfPoint> blueContours;
-    List<MatOfPoint> yellowContours;
-    List<MatOfPoint> pinkButtonContours;
-    List<MatOfPoint> fingerContours;
 
-    ArrayList<PointXY> redCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> greenCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> blueCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> yellowCentrePointList = new ArrayList<PointXY>();
-
-    double redCentrePointX, redCentrePointY, greenCentrePointX, greenCentrePointY, blueCentrePointX , blueCentrePointY, yellowCentrePointX, yellowCentrePointY;
-    RotatedRect rect;
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
 
-        if (DataHolder.getGameSelected() == 1) {
-            determineIfUserPressedStart();
-            verifyGame1();
+
+        if (DataHolder.getGameSelected() == 1 || DataHolder.getGameSelected() == 3) {
+            //  TODO Auto-generated method stub
+            determineIfUserPressedStart();        //remove this after you got the button
+            verifyGame1OrGame3();
         }
         if (DataHolder.getGameSelected() == 2)
             verifyGame2();
@@ -341,8 +367,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             checkIfUserPressPinkButton(fingerTipXY);
         }
     }
-
-    //PointXY fingerTipXY;
 
     private void checkIfUserPressPinkButton(PointXY fingerTipXY){
         PointXY pinkButtonXY = getMaxPointXY(filteredPinkButtonContours);   //get point of max Y of pink button
@@ -396,7 +420,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     }
 
 
-    private void verifyGame1(){
+    private void verifyGame1OrGame3(){
         //detecting chips
         redDetector.process(mRgba);
         greenDetector.process(mRgba);
@@ -408,11 +432,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         greenContours = greenDetector.getContours();
         blueContours = blueDetector.getContours();
         yellowContours = yellowDetector.getContours();
-
-//        Imgproc.drawContours(mRgba, redContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
-//        Imgproc.drawContours(mRgba, greenContours, -1,  new Scalar(0,255,0,255));   //draw green contours on the screen
-//        Imgproc.drawContours(mRgba, blueContours, -1,  new Scalar(0,0,255,255));   //draw blue contours on the screen
-//        Imgproc.drawContours(mRgba, yellowContours, -1,  new Scalar(255,255,0,255));   //yellow red contours on the screen
 
         filteredRedContours = filterColourContours(redContours);
         filteredGreenContours = filterColourContours(greenContours);
@@ -428,15 +447,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
         //if screen is touched (simulate start button), verify results
         if (pressedStartButton) {
-
-//            Log.e(TAG, "red Contours count: " + redContours.size());
-//            addChipsCentreToList(redContours, Colours.RED);
-//            Log.e(TAG, "green Contours count: " + greenContours.size());
-//            addChipsCentreToList(greenContours, Colours.GREEN);
-//            Log.e(TAG, "blue Contours count: " + blueContours.size());
-//            addChipsCentreToList(blueContours, Colours.BLUE);
-//            Log.e(TAG, "yellowContours count: " + yellowContours.size());
-//            addChipsCentreToList(yellowContours, Colours.YELLOW);
 
             Log.e(TAG, "filtered red Contours count: " + filteredRedContours.size());
             addChipsCentreToList(filteredRedContours, Colours.RED);
@@ -571,6 +581,12 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
             lightUpGeneratedPlacement();
 
+            if (DataHolder.getGameSelected() == 3) {
+                long game3EndTime = SystemClock.elapsedRealtime();
+                long elapsedGame3Seconds = (game3EndTime - game3StartTime) + elapsedSecondsUntilPressStart;
+                DataHolder.setScore( (int ) elapsedGame3Seconds);
+            }
+
             //put a bit of delay so can show the user the lighted up LED
             try {
                 Thread.sleep(5000);
@@ -585,31 +601,24 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             if (Arrays.deepEquals(chipPlacement, generatedPlacement)) {
                 Log.e(TAG, "user won!");//user wins
                 win = true;
-                //DataHolder.setLevel(DataHolder.getLevel() + 1); //next level
-                //level += 1; //next level
             }
             else {
                 Log.e(TAG, "user lost!");//user loses
-                //DataHolder.setLevel(1); //restart from level 1
-                //level = 1; //restart level
                 win = false;
+                DataHolder.setScore(0);
             }
 
             //put extra to next activity
             //i.putExtra("Level",level);
-            i.putExtra("win", win);
             //i.putExtra("GameSelected", gameSelected);
+            i.putExtra("win", win);
             startActivity(i);
         }
         pressedStartButton = false;
 
     }
 
-    PointXY fingerTipXY = null;
-    int prevFingerPositionOnBoard= 0, fingerPositionOnBoard = 0;
-    boolean lose = false;
-    int generatedSequenceIndex = 0;
-    long startTime;
+
 
     private void verifyGame2(){
         boolean fingerInsideBoard = false;
@@ -619,11 +628,9 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         fingerContours = fingerDetector.getContours();
         //--
 
-        if (fingerContours.size() != 0 ) {  //filter out wrong finger detections
-            fingerTipXY = detectFinger();
+        if (fingerContours.size() != 0 ) {
+            fingerTipXY = detectFinger(); //filter out wrong finger detections
 
-//if (fingerTipXY in area of board)
-//if (fingerTipXY almost same for 1 second)
             //check finger current position
             for (int j = 0; j < 8; j++) {       //iterate through first column to determine the row(j) it is at
                 if ((boardMatrix[j][0].y() > (fingerTipXY.y() - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (fingerTipXY.y() + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
@@ -650,6 +657,16 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                                 Log.e(TAG, "finger placement is: " + j + k);
                                 //verify if user lost by comparing finger current position with generated sequence
                                 if (fingerPositionOnBoard != generatedSequence.get(generatedSequenceIndex)) {
+
+                                    wrongMP3 = MediaPlayer.create(this, R.raw.wrong);
+                                    wrongMP3.start();                                     //play sound
+                                    wrongMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                        public void onCompletion(MediaPlayer mp) {
+                                            mp.release();
+
+                                        };
+                                    });
+
                                     //user lost, proceed to score page
                                     Log.e(TAG, "user lost!");
                                     win = false;
@@ -750,8 +767,12 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     }
 
     public void onSerialReceived(String theString) {                            //Once connection data received, this function will be called
-        // TODO Auto-generated method stub
+        //  TODO Auto-generated method stub
+//        if message from bluno indicating pressed start button,
+//        pressedStartButton = true;
+//        else
         send();
+
     }
 
 

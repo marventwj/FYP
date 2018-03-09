@@ -233,9 +233,11 @@ public class BluetoothLeService extends Service {
                             }
 
                             else {
-                                System.out.println("THE BLUETOOTHGATTCHARACTERISTIC STRING $$$$$$$$$$$$$$$$$$$$$$$$$ " + bluetoothGattCharacteristicHelper.mCharacteristicValue);
+                                Log.e(TAG, "THE BLUETOOTHGATTCHARACTERISTIC STRING $$ " + bluetoothGattCharacteristicHelper.mCharacteristicValue);
+                                //System.out.println("THE BLUETOOTHGATTCHARACTERISTIC STRING $$$$$$$$$$$$$$$$$$$$$$$$$ " + bluetoothGattCharacteristicHelper.mCharacteristicValue);
                                 bluetoothGattCharacteristicHelper.mCharacteristic.setValue(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue));
-                                System.out.println("THE BYTE ARRAYS SENDING $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: " + Arrays.toString(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue)));
+                                Log.e(TAG, "THE BYTE ARRAYS SENDING $$: " + Arrays.toString(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue)));
+                                //System.out.println("THE BYTE ARRAYS SENDING $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$: " + Arrays.toString(hexStringToByteArray(bluetoothGattCharacteristicHelper.mCharacteristicValue)));
                             }
 
 	            	        if(mBluetoothGatt.writeCharacteristic(bluetoothGattCharacteristicHelper.mCharacteristic))
@@ -465,6 +467,9 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.close();
         mBluetoothGatt = null;
+
+        Log.e(TAG, "BLUETOOTHLE SERVICE CLOSED, SET BLUETOOTHCONNECTED TO FALSE");
+        DataHolder.setBluetoothConnected(false);
     }
 
     /**
@@ -508,11 +513,14 @@ public class BluetoothLeService extends Service {
             // this should never happen because "US-ASCII" is hard-coded.
             throw new IllegalStateException(e);
         }
-        System.out.println("allwriteCharacteristicString:"+writeCharacteristicString);
+        //System.out.println("allwriteCharacteristicString:"+writeCharacteristicString);
+        Log.e(TAG, "allwriteCharacteristicString:"+writeCharacteristicString);
         
         //As the communication is asynchronous content string and characteristic should be pushed into an ring buffer for further transmission
     	mCharacteristicRingBuffer.push(new BluetoothGattCharacteristicHelper(characteristic,writeCharacteristicString) );
-    	System.out.println("mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
+    	//System.out.println("mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
+        Log.e(TAG, "mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
+
 
 
     	//The progress of onCharacteristicWrite and writeCharacteristic is almost the same. So callback function is called directly here

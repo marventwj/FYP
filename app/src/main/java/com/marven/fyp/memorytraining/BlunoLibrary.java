@@ -48,7 +48,7 @@ public abstract  class BlunoLibrary  extends ActionBarActivity {
 	public void serialSend(String theString) {
 		System.out.println("ENTER SERIAL SEND");
 		if (mConnectionState == connectionStateEnum.isConnected) {
-			System.out.println("SENDING THE STRING LEH");
+			System.out.println("SENDING THE STRING");
 			mSCharacteristic.setValue(theString);
 			mBluetoothLeService.writeCharacteristic(mSCharacteristic);
 		}

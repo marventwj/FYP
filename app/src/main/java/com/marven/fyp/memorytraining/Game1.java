@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledFuture;
 public class Game1 extends BaseActivity {
 
     private static final String TAG = "OCVSample::Activity";
-    //int level , gameSelected = 1;
     private TextView topTextView;
     ArrayList<String> stringBuffer = new ArrayList<String>();
     ArrayList<String> lightedLEDStringList = new ArrayList<String>();
@@ -46,8 +45,6 @@ public class Game1 extends BaseActivity {
         soundLevelOne = MediaPlayer.create(this, R.raw.level_one);
         topTextView = (TextView) findViewById(R.id.topTextView);
 
-        //collect intent
-        //level =  getIntent().getIntExtra("Level",0);
         i = new Intent(this, VerifyResults.class);
 
         //neccessary displays before start of game
@@ -55,20 +52,19 @@ public class Game1 extends BaseActivity {
 
         int timeLEDOn=0, numLED=0,numColour = 0;
 
-        //easy mode
+        //easy mode - 1 colour
         if (DataHolder.getMode() == DataHolder.Mode.EASY) {
+
+            //numColour = 1;
             //based on current level, generate the game, delay time is how long it will show on the board
-            //if (level == 1) {
             if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getEasyLevel1Time() * 1000;
                 numLED = DataHolder.getEasyLevel1NumLED();
                 numColour = DataHolder.getEasyLevel1NumColour();
-            //} else if (level == 2) {
             } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getEasyLevel2Time() * 1000;
                 numLED = DataHolder.getEasyLevel2NumLED();
                 numColour = DataHolder.getEasyLevel2NumColour();
-           // } else if (level == 3) {
             } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getEasyLevel3Time() * 1000;
                 numLED = DataHolder.getEasyLevel3NumLED();
@@ -76,20 +72,19 @@ public class Game1 extends BaseActivity {
             }
         }
 
-        //medium mode
+        //medium mode - 2 colour
         else if (DataHolder.getMode() == DataHolder.Mode.MEDIUM) {
+
+            //numColour = 2;
             //based on current level, generate the game, delay time is how long it will show on the board
-            //if (level == 1) {
             if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getMediumLevel1Time() * 1000;
                 numLED = DataHolder.getMediumLevel1NumLED();
                 numColour = DataHolder.getMediumLevel1NumColour();
-            //} else if (level == 2) {
             } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getMediumLevel2Time() * 1000;
                 numLED = DataHolder.getMediumLevel2NumLED();
                 numColour = DataHolder.getMediumLevel2NumColour();
-            //} else if (level == 3) {
             } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getMediumLevel3Time() * 1000;
                 numLED = DataHolder.getMediumLevel3NumLED();
@@ -97,20 +92,19 @@ public class Game1 extends BaseActivity {
             }
         }
 
-        //hard mode
+        //hard mode - 3 colour
         else if (DataHolder.getMode() == DataHolder.Mode.HARD) {
+
+            //numColour = 3;
             //based on current level, generate the game, delay time is how long it will show on the board
-            //if (level == 1) {
             if (DataHolder.getLevel() == 1){
                 timeLEDOn = DataHolder.getHardLevel1Time() * 1000;
                 numLED = DataHolder.getHardLevel1NumLED();
                 numColour = DataHolder.getHardLevel1NumColour();
-            //} else if (level == 2) {
             } else if (DataHolder.getLevel() == 2) {
                 timeLEDOn = DataHolder.getHardLevel2Time() * 1000;
                 numLED = DataHolder.getHardLevel2NumLED();
                 numColour = DataHolder.getHardLevel2NumColour();
-            //} else if (level == 3) {
             } else if (DataHolder.getLevel() == 3) {
                 timeLEDOn = DataHolder.getHardLevel3Time() * 1000;
                 numLED = DataHolder.getHardLevel3NumLED();
@@ -134,8 +128,6 @@ public class Game1 extends BaseActivity {
                 i.putExtra("boardMatrix", getIntent().getSerializableExtra("boardMatrix"));
                 i.putExtra("generatedPlacement", generatedPlacement);
                 i.putStringArrayListExtra("lightedLEDStringList", lightedLEDStringList);
-                //i.putExtra("Level",level);
-                //i.putExtra("GameSelected",gameSelected);
                 //progress.dismiss();
                 startActivity(i);
             }
@@ -147,9 +139,6 @@ public class Game1 extends BaseActivity {
     String levelString = "Level ";
 
     public void beforeStartDisplay() {
-
-        //levelString += String.valueOf(level);// "1" should be a variable called level from intent. current level
-
         levelString += String.valueOf(DataHolder.getLevel());
 
         //level X
@@ -165,7 +154,6 @@ public class Game1 extends BaseActivity {
                     }
                 });
 
-                //if (level == 1) {
                 if (DataHolder.getLevel() == 1) {
                     soundLevelOne.start();
                     soundLevelOne.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -175,7 +163,6 @@ public class Game1 extends BaseActivity {
                     });
                 }
 
-                //else if (level == 2) {
                 else if (DataHolder.getLevel() == 2) {
                     soundLevelTwo.start();
                     soundLevelTwo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -185,7 +172,6 @@ public class Game1 extends BaseActivity {
                     });
                 }
 
-                //else if (level == 3) {
                 else if (DataHolder.getLevel() == 3) {
                     soundLevelThree.start();
                     soundLevelThree.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -194,6 +180,31 @@ public class Game1 extends BaseActivity {
                         }
                     });
                 }
+
+
+                if (DataHolder.getBoardSize() == 3)     //if level = bottom right of board 3x3
+                    stringBuffer.add(generateRowString('p', "00000000" , "00070707")); //show LED since is last, no need to append
+
+                else if (DataHolder.getBoardSize() == 4)     //if level = bottom right of board 4x4
+                    stringBuffer.add(generateRowString('p', "00000000" , "0F0F0F0F"));    //bottom right 4x4 board
+
+                else if (DataHolder.getBoardSize() == 5)     //if level = bottom right of board 5x5
+                    stringBuffer.add(generateRowString('p', "0000001F" , "1F1F1F1F"));    //bottom right 5x5 board
+
+                else if (DataHolder.getBoardSize() == 6)     //if level = bottom right of board 6x6
+                    stringBuffer.add(generateRowString('p', "00003F3F" , "3F3F3F3F"));    //bottom right 6x6 board
+
+                else if (DataHolder.getBoardSize() == 7)     //if level = bottom right of board 7x7
+                    stringBuffer.add(generateRowString('p', "007F7F7F" , "7F7F7F7F"));    //bottom right 7x7 board
+
+                else if (DataHolder.getBoardSize() == 8)     //if level = bottom right of board 8x8
+                    stringBuffer.add(generateRowString('p', "FFFFFFFF" , "FFFFFFFF"));    //bottom right 8x8 board
+
+                send();
+
+
+
+
             }
         }, delay);    //in millis
 
@@ -217,6 +228,7 @@ public class Game1 extends BaseActivity {
 
                     };
                 });
+
             }
         }, delay);    //in millis
 
@@ -226,6 +238,11 @@ public class Game1 extends BaseActivity {
             @Override
             public void run() {
                 System.out.println("Get ready");
+
+                //clear LED
+                //stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");
+                //send();
+
 
                 runOnUiThread(new Runnable() {      //anything that updates view need to use this.
                     @Override
@@ -246,7 +263,7 @@ public class Game1 extends BaseActivity {
     }
 
     boolean occupied;
-    int row = 0, column = 0;
+    int row = 0, column = 0 , prevRow, prevColumn, minNumSideBySideLED;
     char colour;
     char[][] generatedPlacement = new char[8][8];
 
@@ -289,6 +306,8 @@ public class Game1 extends BaseActivity {
                     }
 
                     Log.e(TAG, "number of LED: " + numberOfLED);
+
+                    //number of LED must not exceed the board size
                     for (int i = 0; i < numberOfLED; i++) {
 
                         //soundMP3.start();
@@ -303,13 +322,32 @@ public class Game1 extends BaseActivity {
 
                         while (occupied) {       //re-generate random row and column if position occupied
                             //random generate 2 position number (each number between 0-7)
-                            int min = 0;
-                            int max = 7;
-                            row = random.nextInt(max - min + 1);  //random generate row
-                            //row = 7;
-                            column = random.nextInt(max - min + 1);   //random generate column
+                            int min = 8 - DataHolder.getBoardSize();    //generate LEDs more towards the bottom side of the board based on boardSize.
+                            int max = 8 ;
+                            row = random.nextInt(max - min) + min;  //random generate row
+                            column = random.nextInt(max - min) + min;   //random generate column
                             //Log.e(TAG, "chosen random row is: " + row);
                             //Log.e(TAG, "chosen random column is: " + column);
+
+
+                            //to generate LED that are side by side
+                            if (i< minNumSideBySideLED){
+                                if (i==0){
+                                    while ( (column + minNumSideBySideLED-1) >=8 ) {
+                                        column = random.nextInt(max - min) + min;   //re-generate the random column
+                                    }
+                                }
+                                else{
+                                    row = prevRow;
+                                    column = prevColumn + 1;
+                                }
+                            }
+                            prevRow = row;
+                            prevColumn = column;
+
+
+
+
 
                             //update generated position and colour into 2d array (to be sent to next activity), need to 7-row because of mirror
                             if (generatedPlacement[7-row][column] == '0') { //if no colour have been generated at this array position
@@ -379,7 +417,7 @@ public class Game1 extends BaseActivity {
 
 
 
-                    //generate (8 - string.size) string of 0, to be concatanated with original string
+                    //generate (8 - string.size) string of 0, to be concatenated with original string
                     for (int i=0; i< (8-redRow0To3HexWithoutZerosString.length()); i++ )
                        redRow0To3HexString += "0";
                     for (int i=0; i< (8-redRow4To7HexWithoutZerosString.length()); i++ )
@@ -576,26 +614,32 @@ public void countDownDisplay(int timeLEDOn) {
 //        return string;
 //    }
 
-    public String generateRowString(char colour, String row0To3Hex, String row4To7Hex) {    //meant for single LED and show LED straight (uses LED protocol instead of row protocol)
+
+    public String generateRowString(char colour, String row0To3Hex, String row4To7Hex) {    //meant for row and show LED straight (uses row protocol instead of LED protocol)
         //0100FFFFFFCCXYFF -> XY = ROW COLUMN
 
         String string = "";
         string += "0300";   //opcode and function
 
-        if (colour == 'r' || colour == 'y') //R
-            string += "FF";
-        else //else is g or b
-            string += "00";
+        if (colour == 'r'){
+            string+= "FF0000";
+        }
 
-        if (colour == 'g' || colour == 'y') //G
-            string += "FF";
-        else
-            string += "00";
+        else if (colour == 'g'){
+            string += "00FF00";
+        }
 
-        if (colour == 'b')  //B
-            string += "FF";
-        else
-            string += "00";
+        else if (colour == 'b'){
+            string += "0000FF";
+        }
+
+        else if (colour == 'y'){
+            string += "FFFF00";
+        }
+
+        else if (colour == 'p'){
+            string += "800080";
+        }
 
         string += "CC";     //'brightness'
 
@@ -649,7 +693,6 @@ public void countDownDisplay(int timeLEDOn) {
 
     @Override
     public void onBackPressed() {
-        //moveTaskToBack(true);
     }
 
     //    @Override

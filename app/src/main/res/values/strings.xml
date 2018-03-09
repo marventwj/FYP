@@ -29,4 +29,5 @@
     <string name="title_activity_select_difficulty">SelectDifficulty</string>
     <string name="title_activity_finger">FingerActivity</string>
     <string name="title_activity_game2">Game2</string>
+    <string name="title_activity_game3">Game3</string>
 </resources>

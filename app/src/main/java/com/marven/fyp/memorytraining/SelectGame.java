@@ -1,10 +1,13 @@
 package com.marven.fyp.memorytraining;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SelectGame extends BaseActivity {
 
@@ -12,11 +15,24 @@ public class SelectGame extends BaseActivity {
     private TextView game1NameText, game2NameText, game3NameText, game4NameText;
     private TextView game1DescText, game2DescText, game3DescText, game4DescText;
     Intent i ;
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_game);
+
+        //connect to bluetooth automatically
+        if (DataHolder.getBluetoothConnected()) {
+            Log.e("hello", "bluetooth already connected!!");
+        }
+        else {
+            buttonScanOnClickProcess();                                        //Connect to board process
+            progress = new ProgressDialog(SelectGame.this);
+            progress.setMessage("Connecting To The Board...");
+            progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            progress.show();
+        }
 
         i = new Intent (this, HowToPlay.class);
 
@@ -35,14 +51,14 @@ public class SelectGame extends BaseActivity {
         gameCard3 = (CardView) findViewById(R.id.Game3Card);
         gameCard4 = (CardView) findViewById(R.id.Game4Card);
 
-        game1NameText.setText("Game 1 Name");
-        game2NameText.setText("Game 2 Name");
-        game3NameText.setText("Game 3 Name");
+        game1NameText.setText("Memorize The Colours");
+        game2NameText.setText("CopyCat Simon Says");
+        game3NameText.setText("Memory Time Challenge");
         game4NameText.setText("Game 4 Name");
 
-        game1DescText.setText("Game 1 Desc");
-        game2DescText.setText("Game 2 Desc");
-        game3DescText.setText("Game 3 Desc");
+        game1DescText.setText("Test Your Memory With Beautiful Colours!");
+        game2DescText.setText("Think You Have A Good Memory? Try CopyCat!");
+        game3DescText.setText("Challenge yourself as the time ticks!");
         game4DescText.setText("Game 4 Desc");
 
         gameCard1.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +96,38 @@ public class SelectGame extends BaseActivity {
                 startActivity(i);
             }
         });
+    }
+
+
+    @Override
+    public void onConectionStateChange(connectionStateEnum theConnectionState) {//Once connection state changes, this function will be called
+        switch (theConnectionState) {											//Four connection state
+            case isConnected:
+                progress.dismiss();
+                Toast.makeText(this, "Connection Successful!",
+                        Toast.LENGTH_LONG).show();
+                DataHolder.setBluetoothConnected(true);
+                break;
+            case isToScan:
+                Log.e("hello", "Connection CHANGED TO IS-TO-SCAN");
+                buttonScanOnClickProcess();                                        //Connect to board process
+                progress = new ProgressDialog(SelectGame.this);
+                progress.setMessage("Connecting To The Board...");
+                progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                progress.show();
+                break;
+//            case isConnecting:
+//                buttonConnectBluetooth.setText("Connecting");
+//                break;
+//            case isScanning:
+//                buttonConnectBluetooth.setText("Scanning");
+//                break;
+//            case isDisconnecting:
+//                buttonConnectBluetooth.setText("isDisconnecting");
+//                break;
+            default:
+                break;
+        }
     }
 
 }

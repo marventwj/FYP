@@ -62,7 +62,8 @@
                     android:layout_height="64dp"
                     android:background="@drawable/circlebackgroundpurple"
                     android:padding="10dp"
-                    android:src="@drawable/ic_attach_money_black_24dp" />
+                    android:src="@drawable/rgb"
+                    />
 
                 <TextView
                     android:id="@+id/game1Name"
@@ -70,7 +71,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:textColor="@android:color/darker_gray"
-
                     android:textStyle="bold" />
 
                 <View
@@ -110,14 +110,13 @@
                     android:layout_height="64dp"
                     android:background="@drawable/circlebackgroundpink"
                     android:padding="10dp"
-                    android:src="@drawable/ic_lightbulb_outline_black_24dp" />
+                    android:src="@drawable/game2" />
 
                 <TextView
                     android:id="@+id/game2Name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 
@@ -174,7 +173,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-
                     android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 

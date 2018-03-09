@@ -157,7 +157,7 @@ public class ColorBlobDetector {
 
         Imgproc.cvtColor(rgbaImage, mIntermediateMat, Imgproc.COLOR_RGB2GRAY);
         Imgproc.pyrDown(mIntermediateMat, mIntermediateMat);        //Blurs an image and downsamples it. src - rgbaImage dst - mPyrDownMat
-        Imgproc.threshold(mIntermediateMat, mIntermediateMat,100, 255, Imgproc.THRESH_BINARY);  //based on light intensity, becomes black and white
+        Imgproc.threshold(mIntermediateMat, mIntermediateMat,110, 255, Imgproc.THRESH_BINARY);  //based on light intensity, becomes black and white
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(mIntermediateMat, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);   //find contour from black and white image
 

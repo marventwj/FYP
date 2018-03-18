@@ -32,8 +32,9 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
 
 
         <!-- <activity android:name=".VerifyResults"> -->
-         <!-- <activity android:name=".CameraCheckChipsColour"> -->
+        <!-- <activity android:name=".CameraCheckChipsColour"> -->
         <!-- <activity android:name=".FingerActivity"> -->
+       <!--  <activity android:name=".CameraCheckChipsRemoved">-->
          <activity android:name=".SelectGame">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,7 +50,7 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
             android:name=".MusicService"
             android:enabled="true" />
 
-        <activity android:name=".Game1" />
+        <activity android:name=".Game1and3" />
         <activity android:name=".VerifyResults" />
         <activity android:name=".HowToPlay" />
         <activity android:name=".Score" />
@@ -61,9 +62,6 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
         <activity
             android:name=".Game2"
             android:label="@string/title_activity_game2" />
-        <activity
-            android:name=".Game3"
-            android:label="@string/title_activity_game3"></activity>
     </application>
 
 </manifest>

@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class SelectGame extends BaseActivity {
 
     CardView gameCard1 ,gameCard2, gameCard3, gameCard4;
@@ -16,23 +19,42 @@ public class SelectGame extends BaseActivity {
     private TextView game1DescText, game2DescText, game3DescText, game4DescText;
     Intent i ;
     ProgressDialog progress;
+    Timer timer = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_game);
 
-        //connect to bluetooth automatically
-        if (DataHolder.getBluetoothConnected()) {
-            Log.e("hello", "bluetooth already connected!!");
-        }
-        else {
-            buttonScanOnClickProcess();                                        //Connect to board process
-            progress = new ProgressDialog(SelectGame.this);
-            progress.setMessage("Connecting To The Board...");
-            progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-            progress.show();
-        }
+
+
+      //  timer.schedule(new TimerTask() {
+        //    @Override
+        //    public void run() {
+                //connect to bluetooth automatically
+                if (DataHolder.getBluetoothConnected()) {
+                    Log.e("hello", "bluetooth already connected!!");
+                }
+                else {
+                    buttonScanOnClickProcess();                                        //Connect to board process
+
+                    //runOnUiThread(new Runnable() {      //anything that updates view need to use this.
+                        //@Override
+                        //public void run() {
+                            progress = new ProgressDialog(SelectGame.this);
+                            progress.setMessage("Connecting To The Board...");
+                            progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                            progress.show();
+
+
+                        //}
+                    //});
+
+                }
+       //     }
+     //   }, 100);    //in millis
+
+
 
         i = new Intent (this, HowToPlay.class);
 
@@ -58,7 +80,7 @@ public class SelectGame extends BaseActivity {
 
         game1DescText.setText("Test Your Memory With Beautiful Colours!");
         game2DescText.setText("Think You Have A Good Memory? Try CopyCat!");
-        game3DescText.setText("Challenge yourself as the time ticks!");
+        game3DescText.setText("Challenge Your Memory Against Time!");
         game4DescText.setText("Game 4 Desc");
 
         gameCard1.setOnClickListener(new View.OnClickListener() {

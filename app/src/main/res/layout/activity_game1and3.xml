@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
 
-    tools:context=".Game1"
+    tools:context=".Game1and3"
     android:background="@drawable/background1"
     android:focusable="true"
     android:focusableInTouchMode="true">

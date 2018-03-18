@@ -475,15 +475,17 @@ public abstract  class BlunoLibrary  extends ActionBarActivity {
 						mDeviceName = device.getName();
 						mDeviceAddress = device.getAddress();
 
-						if (mBluetoothLeService.connect(mDeviceAddress)) {
-							Log.d(TAG, "Connect request success");
-							mConnectionState = connectionStateEnum.isConnecting;
-							onConectionStateChange(mConnectionState);
-							mHandler.postDelayed(mConnectingOverTimeRunnable, 10000);
-						} else {
-							Log.d(TAG, "Connect request fail");
-							mConnectionState = connectionStateEnum.isToScan;
-							onConectionStateChange(mConnectionState);
+						if(mBluetoothLeService!=null) {							//added this, remove if will affect other stuff
+							if (mBluetoothLeService.connect(mDeviceAddress)) {
+								Log.d(TAG, "Connect request success");
+								mConnectionState = connectionStateEnum.isConnecting;
+								onConectionStateChange(mConnectionState);
+								mHandler.postDelayed(mConnectingOverTimeRunnable, 10000);
+							} else {
+								Log.d(TAG, "Connect request fail");
+								mConnectionState = connectionStateEnum.isToScan;
+								onConectionStateChange(mConnectionState);
+							}
 						}
 					}
 							//mLeDeviceListAdapter.addDevice(device);				//uncomment this if you want to use list adapter.@@@@@@@@@@@@@@@@@@@@@@

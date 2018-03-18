@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.marven.fyp.memorytraining.Game1">
+    tools:context="com.marven.fyp.memorytraining.Game1and3">
     <item
         android:id="@+id/difficulty_settings"
         android:orderInCategory="100"
@@ -9,20 +9,50 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/level_one"
+        android:id="@+id/size3x3"
         android:orderInCategory="100"
-        android:title="Level one"
+        android:title="3 x 3"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/level_two"
+        android:id="@+id/size4x4"
         android:orderInCategory="100"
-        android:title="Level two"
+        android:title="4 x 4"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/level_three"
+        android:id="@+id/size5x5"
         android:orderInCategory="100"
-        android:title="Level three"
+        android:title="5 x 5"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/size6x6"
+        android:orderInCategory="100"
+        android:title="6 x 6"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/size7x7"
+        android:orderInCategory="100"
+        android:title="7 x 7"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/size8x8"
+        android:orderInCategory="100"
+        android:title="8 x 8"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/offSound"
+        android:orderInCategory="100"
+        android:title="Off Sound"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/offMusic"
+        android:orderInCategory="100"
+        android:title="Off Music"
         app:showAsAction="never" />
 </menu>

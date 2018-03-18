@@ -38,8 +38,6 @@ import android.view.SurfaceView;
 import static com.marven.fyp.memorytraining.CameraCheckChipsRemoved.fingerBufferLength;
 
 public class VerifyResults extends BaseActivity implements View.OnTouchListener, CameraBridgeViewBase.CvCameraViewListener2 {
-    private static final String  TAG              = "OCVSample::Activity";
-    public static final int chipBufferLengthFromCentre = 35;
 
     public enum Colours {
         RED,
@@ -48,13 +46,12 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         YELLOW;
     }
 
-    public static final int xMinChipLength = 20;
-    public static final int xMaxChipLength = 130; //130
-    public static final int yMinChipLength = 20;
-    public static final int yMaxChipLength = 170; //130
+    private static final String  TAG              = "OCVSample::Activity";
+    public static final int chipBufferLengthFromCentre = 35;    //for finger detection game 2?
+    public static final int increaseChipYMinValue = 20;
+    public static final int decreaseChipYMaxValue = 20;
 
     Intent i;
-    //int level, gameSelected;
     boolean win;
 
     PointXY[][] boardMatrix = new PointXY[8][8];
@@ -73,7 +70,9 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     int prevFingerPositionOnBoard= 0, fingerPositionOnBoard = 0;
     boolean lose = false;
     int generatedSequenceIndex = 0;
-    long startTime, game3StartTime, elapsedSecondsUntilPressStart;
+    long startTime, game3StartTime, elapsedTimeUntilPressStart, elapsedSecondsUntilPressStart;
+
+    int stageScore, stageTime;
 
     Point[] points;
     double minValueX, minValueY, maxValueX, maxValueY, centreX, centreY, valueX , valueY;
@@ -84,12 +83,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     List<MatOfPoint> pinkButtonContours;
     List<MatOfPoint> fingerContours;
 
-    ArrayList<PointXY> redCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> greenCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> blueCentrePointList = new ArrayList<PointXY>();
-    ArrayList<PointXY> yellowCentrePointList = new ArrayList<PointXY>();
-
-    double redCentrePointX, redCentrePointY, greenCentrePointX, greenCentrePointY, blueCentrePointX , blueCentrePointY, yellowCentrePointX, yellowCentrePointY;
+    ArrayList<PointXY> redMinMaxPointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> greenMinMaxPointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> blueMinMaxPointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> yellowMinMaxPointList = new ArrayList<PointXY>();
     RotatedRect rect;
 
 
@@ -140,32 +137,37 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);   //no need?
         mOpenCvCameraView.setCvCameraViewListener(this);
 
+    //--------------------------------------------You may place the chips now, press start when you are ready.-----------------------------------
 
-        if (DataHolder.getGameSelected() == 1) {
-            placeTheChipsMP3 = MediaPlayer.create(this, R.raw.you_can_place_the_chips_now);
-            soundMP3 = MediaPlayer.create(this, R.raw.press_start_when_you_are_ready);
-            placeTheChipsMP3.start();       //press start when you are ready
-            placeTheChipsMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    soundMP3.start();
-                    mp.release();
-                }
-            }); //press start when you are ready
+        if (DataHolder.getNaturalReaderSoundStatus()) {
+            if (DataHolder.getGameSelected() == 1 || DataHolder.getGameSelected() == 3) {
+                placeTheChipsMP3 = MediaPlayer.create(this, R.raw.you_can_place_the_chips_now);
+                soundMP3 = MediaPlayer.create(this, R.raw.press_start_when_you_are_ready);
+                placeTheChipsMP3.start();       //press start when you are ready
+                placeTheChipsMP3.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        soundMP3.start();
+                        mp.release();
+                    }
+                });
+            }
         }
+        //------------------------------------------------------------------------------------------------------------------------------------------------
 
         //  TODO Auto-generated method stub
         //need add this for game 3
-        //game3StartTime = SystemClock.elapsedRealtime(); //reset timer
-        //elapsedSecondsUntilPressStart = getIntent().getLongExtra("elapsedSecondsUntilPressStart", elapsedSecondsUntilPressStart);
-
-
+        game3StartTime = SystemClock.elapsedRealtime(); //reset timer
+        elapsedTimeUntilPressStart = getIntent().getLongExtra("elapsedTimeUntilPressStart", elapsedSecondsUntilPressStart);
         generatedPlacement = (char [][])getIntent().getSerializableExtra("generatedPlacement");    //get array XY of board from previous activity
         //see generated placement of chips
 //        for (int i=0; i<8; i++)
 //            for (int j=0 ;j<8;j++)
 //                Log.e(TAG, "generatedPlacement is " + generatedPlacement[i][j] + i + "" + j);
-        boardMatrix = (PointXY [][])getIntent().getSerializableExtra("boardMatrix");    //get array XY of board from previous activity
+
+        //boardMatrix = (PointXY [][])getIntent().getSerializableExtra("boardMatrix");    //get array XY of board from previous activity
+        boardMatrix = DataHolder.getBoardMatrix();
+
 //        //see centrepoints of x y board.
 //        for (int a=0; a<8; a++)
 //            for (int b=0; b<8; b++) {
@@ -173,10 +175,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 //            }
         lightedLEDStringList = getIntent().getStringArrayListExtra("lightedLEDStringList");
         generatedSequence = getIntent().getIntegerArrayListExtra("generatedSequence");
-
-       // level =  getIntent().getIntExtra("Level",0);
-       // gameSelected =  getIntent().getIntExtra("GameSelected",0);
-
 
         //print generated Sequence
         if (DataHolder.getGameSelected()==2) {
@@ -246,26 +244,26 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         SPECTRUM_SIZE = new Size(200, 64);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
-        // 2 188 190
-        redBlobColorHsv.val[0] = 2;   //H  //250
-        redBlobColorHsv.val[1] = 188;   //S   //136
-        redBlobColorHsv.val[2] = 140;   //V
+        //254,224,109 - old red chip
+        redBlobColorHsv.val[0] = 245;   //H  //250
+        redBlobColorHsv.val[1] = 171;   //S   //136
+        redBlobColorHsv.val[2] = 185;   //V
+        //3 194 150             //radius 5 40 110           -red magnet without light
+        //245 171 185           //radius 25 85 70           -red magnet with light
 
         //hsv : 95, 126, 134, 0 - old green chip
-        greenBlobColorHsv.val[0] = 82;  //H
-        greenBlobColorHsv.val[1] = 180; //S
-        greenBlobColorHsv.val[2] = 140; //V
-        //69 183 234 brighter
-        //76 193 116 darker
-        //82 180 180 average good
+        greenBlobColorHsv.val[0] = 96;  //H
+        greenBlobColorHsv.val[1] = 149; //S
+        greenBlobColorHsv.val[2] = 165; //V
+        //82 180 140            //radius 15 50 110          -green magnet without light
+        //96 149 165            //radius 25 100 110         -green magnet with white dim light
 
         //hsv : 143, 143, 138, 0 -  old blue chip
-        blueBlobColorHsv.val[0] = 177;  //H
-        blueBlobColorHsv.val[1] = 117;  //S
-        blueBlobColorHsv.val[2] = 130;   //V
-        //165 157 108 brighter
-        //172 89 48 darker, but sensing black also
-        //177 117 42 darker, but abit never sense black
+        blueBlobColorHsv.val[0] = 163;  //H
+        blueBlobColorHsv.val[1] = 180;  //S
+        blueBlobColorHsv.val[2] = 185;   //V
+        //177 157 130           //radius 15 50 110          -blue magnet without light
+        //163 172 205           //radius 25 85 50           -blue magnet with white dim light
 
         //hsv : 41, 163, 125, 0 - old yellow chip
         yellowBlobColorHsv.val[0] = 20;  //H        //50 previously when chip is bright        //30 for dark
@@ -286,17 +284,9 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", " + mBlobColorRgba.val[1] +
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
 
-        //5 50 80
-//        redDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-//        greenDetector.setColorRadius(new Scalar(15,50,85,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-//        blueDetector.setColorRadius(new Scalar(30,50,105,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-//        yellowDetector.setColorRadius(new Scalar(15,50,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-//        fingerDetector.setColorRadius(new Scalar(10,70,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-//        pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-
-        redDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        greenDetector.setColorRadius(new Scalar(15,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        blueDetector.setColorRadius(new Scalar(30,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        redDetector.setColorRadius(new Scalar(25,85,70,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        greenDetector.setColorRadius(new Scalar(25,100,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        blueDetector.setColorRadius(new Scalar(15,75,50,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         yellowDetector.setColorRadius(new Scalar(15,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         fingerDetector.setColorRadius(new Scalar(10,70,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
@@ -330,16 +320,29 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         return false; // don't need subsequent touch events
     }
 
-
+    Mat rgbaInnerWindow;
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         mRgba = inputFrame.rgba();
 
+        int rows = (int) mRgba.size().height;
+        int cols = (int) mRgba.size().width;
+        int left = cols / 18;
+        int top = rows / 8;
+        int width = cols *5 / 6;
+        int height = rows *3 / 4;
+        rgbaInnerWindow = mRgba.submat(0, rows , 0, width);
+
+        //draw rectangle to show regions that will be detected
+        Point start = new Point(0,0);
+        Point end = new Point (width, rows);
+        Imgproc.rectangle(rgbaInnerWindow,start,end, new Scalar (0,0,255,255) , 5);
+
 
         if (DataHolder.getGameSelected() == 1 || DataHolder.getGameSelected() == 3) {
             //  TODO Auto-generated method stub
-            determineIfUserPressedStart();        //remove this after you got the button
+            //determineIfUserPressedStart();        //remove this after you got the button
             verifyGame1OrGame3();
         }
         if (DataHolder.getGameSelected() == 2)
@@ -394,11 +397,11 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             }
         }
         Rect boundRect = Imgproc.boundingRect(new MatOfPoint(fingerContours.get(boundPos).toArray()));
-        Imgproc.rectangle(mRgba, boundRect.tl(), boundRect.br(), new Scalar(255, 255, 255, 255), 2, 8, 0);   // white
+        Imgproc.rectangle(rgbaInnerWindow, boundRect.tl(), boundRect.br(), new Scalar(255, 255, 255, 255), 2, 8, 0);   // white
         double a = boundRect.br().y - boundRect.tl().y;
         a = a * 0.7;
         a = boundRect.tl().y + a;
-        Imgproc.rectangle(mRgba, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0);
+        Imgproc.rectangle(rgbaInnerWindow, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0);
         MatOfPoint2f pointMat = new MatOfPoint2f();
         Imgproc.approxPolyDP(new MatOfPoint2f(fingerContours.get(boundPos).toArray()), pointMat, 3, true);
         fingerContours.set(boundPos, new MatOfPoint(pointMat.toArray()));
@@ -414,7 +417,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         MatOfPoint e = new MatOfPoint();
         e.fromList(listPo);
         hullPoints.add(e);
-        Imgproc.drawContours(mRgba, hullPoints, -1, new Scalar(255, 0, 255, 255), 3);   //pink
+        Imgproc.drawContours(rgbaInnerWindow, hullPoints, -1, new Scalar(255, 0, 255, 255), 3);   //pink
         PointXY fingerTipXY = getMaxPointXY(hullPoints);   //get point of max Y of the finger tip
         return fingerTipXY;
     }
@@ -422,10 +425,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
     private void verifyGame1OrGame3(){
         //detecting chips
-        redDetector.process(mRgba);
-        greenDetector.process(mRgba);
-        blueDetector.process(mRgba);
-        yellowDetector.process(mRgba);
+        redDetector.process(rgbaInnerWindow);
+        greenDetector.process(rgbaInnerWindow);
+        blueDetector.process(rgbaInnerWindow);
+        //yellowDetector.process(mRgba);
 
         //get the contours after detector.process
         redContours = redDetector.getContours();
@@ -436,60 +439,51 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         filteredRedContours = filterColourContours(redContours);
         filteredGreenContours = filterColourContours(greenContours);
         filteredBlueContours = filterColourContours(blueContours);
-        filteredYellowContours = filterColourContours(yellowContours);
+        //filteredYellowContours = filterColourContours(yellowContours);
 
 
-        Imgproc.drawContours(mRgba, filteredRedContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
-        Imgproc.drawContours(mRgba, filteredGreenContours, -1,  new Scalar(0,255,0,255));   //draw red contours on the screen
-        Imgproc.drawContours(mRgba, filteredBlueContours, -1,  new Scalar(0,0,255,255));   //draw red contours on the screen
-        Imgproc.drawContours(mRgba, filteredYellowContours, -1,  new Scalar(255,255,0,255));   //draw red contours on the screen
+        Imgproc.drawContours(rgbaInnerWindow, filteredRedContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
+        Imgproc.drawContours(rgbaInnerWindow, filteredGreenContours, -1,  new Scalar(0,255,0,255));   //draw red contours on the screen
+        Imgproc.drawContours(rgbaInnerWindow, filteredBlueContours, -1,  new Scalar(0,0,255,255));   //draw red contours on the screen
+        //Imgproc.drawContours(mRgba, filteredYellowContours, -1,  new Scalar(255,255,0,255));   //draw red contours on the screen
 
 
         //if screen is touched (simulate start button), verify results
         if (pressedStartButton) {
 
             Log.e(TAG, "filtered red Contours count: " + filteredRedContours.size());
-            addChipsCentreToList(filteredRedContours, Colours.RED);
+            addChipsMinMaxToList(filteredRedContours, Colours.RED);
             Log.e(TAG, "filtered green Contours count: " + filteredGreenContours.size());
-            addChipsCentreToList(filteredGreenContours, Colours.GREEN);
+            addChipsMinMaxToList(filteredGreenContours, Colours.GREEN);
             Log.e(TAG, "filtered blue Contours count: " + filteredBlueContours.size());
-            addChipsCentreToList(filteredBlueContours, Colours.BLUE);
+            addChipsMinMaxToList(filteredBlueContours, Colours.BLUE);
             Log.e(TAG, "filtered yellow Contours count: " + filteredYellowContours.size());
-            addChipsCentreToList(filteredYellowContours, Colours.YELLOW);
+            addChipsMinMaxToList(filteredYellowContours, Colours.YELLOW);
 
             //empty chipPlacementArray first
             for (int i = 0; i < 8; i++) {
                 Arrays.fill(chipPlacement[i], '0');
             }
             //identifying chips position on the board
-            for (int i = 0; i < redCentrePointList.size(); i++) {   //check all red chips
-                redCentrePointX = redCentrePointList.get(i).x();
-                redCentrePointY = redCentrePointList.get(i).y();
-
-                double min = redCentrePointX - chipBufferLengthFromCentre;
-                double max = redCentrePointX + chipBufferLengthFromCentre;
-
-                double minY = redCentrePointY - chipBufferLengthFromCentre;
-                double maxY = redCentrePointY + chipBufferLengthFromCentre;
+            for (int i = 0; i < redMinMaxPointList.size(); i++) {   //check all red chips
+                double minX = redMinMaxPointList.get(i).minX() ;
+                double maxX = redMinMaxPointList.get(i).maxX();
+                double minY = redMinMaxPointList.get(i).minY() + increaseChipYMinValue;
+                double maxY = redMinMaxPointList.get(i).maxY() + decreaseChipYMaxValue;
                 Log.e(TAG, "red min range y based on chip: " + minY);
                 Log.e(TAG, "red max range y based on chip: " + maxY);
 
 
-                for (int j = 0; j < 8; j++) {       //iterate through first column
-                    Log.e(TAG, "y of board: " + boardMatrix[j][0].y());
-
-                    if ((boardMatrix[j][0].y() > (redCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (redCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
-                        //check X
-
-                        Log.e(TAG, "red min range x based on chip: " + min);
-                        Log.e(TAG, "red max range x based on chip: " + max);
-
-
-                        for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (redCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (redCentrePointX + chipBufferLengthFromCentre))) {
+                for (int j = 0; j < 8; j++) {
+                    for (int k = 0; k < 8; k++) {
+                        Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
+                        Log.e(TAG, "y of board: " + boardMatrix[j][k].y());
+                        Log.e(TAG, "red min range x based on chip: " + minX);
+                        Log.e(TAG, "red max range x based on chip: " + maxX);
+                        Log.e(TAG, " ");
+                        if ((boardMatrix[j][k].y() > (minY)) && (boardMatrix[j][k].y() < (maxY))) {
+                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
                                 chipPlacement[j][k] = 'r';
-
-                                Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
                                 Log.e(TAG, "register chip placement r");
                                 Log.e(TAG, " ");
 
@@ -500,35 +494,83 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 }
             }
 
-            for (int i = 0; i < greenCentrePointList.size(); i++) {   //check all green chips
-                greenCentrePointX = greenCentrePointList.get(i).x();
-                greenCentrePointY = greenCentrePointList.get(i).y();
-
-                double min = greenCentrePointX - chipBufferLengthFromCentre;
-                double max = greenCentrePointX + chipBufferLengthFromCentre;
-
-                double minY = greenCentrePointY - chipBufferLengthFromCentre;
-                double maxY = greenCentrePointY + chipBufferLengthFromCentre;
+            for (int i = 0; i < greenMinMaxPointList.size(); i++) {   //check all green chips
+                double minX = greenMinMaxPointList.get(i).minX();
+                double maxX = greenMinMaxPointList.get(i).maxX();
+                double minY = greenMinMaxPointList.get(i).minY() + increaseChipYMinValue;
+                double maxY = greenMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
                 Log.e(TAG, "green min range y based on chip: " + minY);
                 Log.e(TAG, "green max range y based on chip: " + maxY);
 
 
+//                for (int j = 0; j < 8; j++) {       //iterate through first column
+//                    Log.e(TAG, "y of board: " + boardMatrix[j][0].y());
+//
+//                    if ((boardMatrix[j][0].y() > (minY)) && (boardMatrix[j][0].y() < (maxY))) { //use first column as reference to check which column the chip lies on
+//                        //check X
+//
+//                        Log.e(TAG, "green min range x based on chip: " + minX);
+//                        Log.e(TAG, "green max range x based on chip: " + maxX);
+//
+//                        for (int k = 0; k < 8; k++) {    //iterate through the rows
+//                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
+//                                chipPlacement[j][k] = 'g';
+//
+//                                Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
+//                                Log.e(TAG, "register chip placement g");
+//                                Log.e(TAG, " ");
+//
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
 
-                for (int j = 0; j < 8; j++) {       //iterate through first column
-                    Log.e(TAG, "y of board: " + boardMatrix[j][0].y());
 
-                    if ((boardMatrix[j][0].y() > (greenCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (greenCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
-                        //check X
+                for (int j = 0; j < 8; j++) {
+                    for (int k = 0; k < 8; k++) {
+                        Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
+                        Log.e(TAG, "y of board: " + boardMatrix[j][k].y());
+                        Log.e(TAG, "green min range x based on chip: " + minX);
+                        Log.e(TAG, "green max range x based on chip: " + maxX);
+                        Log.e(TAG, " ");
+                        if ((boardMatrix[j][k].y() > (minY)) && (boardMatrix[j][k].y() < (maxY))) {
+                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
+                                    chipPlacement[j][k] = 'g';
+                                    Log.e(TAG, "register chip placement g");
+                                    Log.e(TAG, " ");
 
-                        Log.e(TAG, "green min range x based on chip: " + min);
-                        Log.e(TAG, "green max range x based on chip: " + max);
+                                    break;
+                            }
+                        }
+                    }
+                }
 
-                        for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (greenCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (greenCentrePointX + chipBufferLengthFromCentre))) {
-                                chipPlacement[j][k] = 'g';
 
-                                Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
-                                Log.e(TAG, "register chip placement g");
+
+            }
+
+            for (int i = 0; i < blueMinMaxPointList.size(); i++) {   //check all blue chips
+                double minX = blueMinMaxPointList.get(i).minX() ;
+                double maxX = blueMinMaxPointList.get(i).maxX();
+                double minY = blueMinMaxPointList.get(i).minY() + increaseChipYMinValue;
+                double maxY = blueMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
+                Log.e(TAG, "blue min range y based on chip: " + minY);
+                Log.e(TAG, "blue max range y based on chip: " + maxY);
+
+
+
+                for (int j = 0; j < 8; j++) {
+                    for (int k = 0; k < 8; k++) {
+                        Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
+                        Log.e(TAG, "y of board: " + boardMatrix[j][k].y());
+                        Log.e(TAG, "blue min range x based on chip: " + minX);
+                        Log.e(TAG, "blue max range x based on chip: " + maxX);
+                        Log.e(TAG, " ");
+                        if ((boardMatrix[j][k].y() > (minY)) && (boardMatrix[j][k].y() < (maxY))) {
+                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
+                                chipPlacement[j][k] = 'b';
+                                Log.e(TAG, "register chip placement b");
                                 Log.e(TAG, " ");
 
                                 break;
@@ -538,33 +580,28 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 }
             }
 
-            for (int i = 0; i < blueCentrePointList.size(); i++) {   //check all blue chips
-                blueCentrePointX = blueCentrePointList.get(i).x();
-                blueCentrePointY = blueCentrePointList.get(i).y();
-                for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (blueCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (blueCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
-                        //check X
-                        for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (blueCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (blueCentrePointX + chipBufferLengthFromCentre))) {
-                                chipPlacement[j][k] = 'b';
-                                Log.e(TAG, "register chip placement b");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            for (int i = 0; i < yellowMinMaxPointList.size(); i++) {   //check all yellow chips
+                double minX = yellowMinMaxPointList.get(i).minX();
+                double maxX = yellowMinMaxPointList.get(i).maxX();
+                double minY = yellowMinMaxPointList.get(i).minY() + increaseChipYMinValue;
+                double maxY = yellowMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
+                Log.e(TAG, "yellow min range y based on chip: " + minY);
+                Log.e(TAG, "yellow max range y based on chip: " + maxY);
 
-            for (int i = 0; i < yellowCentrePointList.size(); i++) {   //check all yellow chips
-                yellowCentrePointX = yellowCentrePointList.get(i).x();
-                yellowCentrePointY = yellowCentrePointList.get(i).y();
-                for (int j = 0; j < 8; j++) {       //iterate through first column
-                    if ((boardMatrix[j][0].y() > (yellowCentrePointY - chipBufferLengthFromCentre)) && (boardMatrix[j][0].y() < (yellowCentrePointY + chipBufferLengthFromCentre))) { //use first column as reference to check which column the chip lies on
-                        //check X
-                        for (int k = 0; k < 8; k++) {    //iterate through the rows
-                            if ((boardMatrix[j][k].x() > (yellowCentrePointX - chipBufferLengthFromCentre)) && (boardMatrix[j][k].x() < (yellowCentrePointX + chipBufferLengthFromCentre))) {
+
+                for (int j = 0; j < 8; j++) {
+                    for (int k = 0; k < 8; k++) {
+                        Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
+                        Log.e(TAG, "y of board: " + boardMatrix[j][k].y());
+                        Log.e(TAG, "yellow min range x based on chip: " + minX);
+                        Log.e(TAG, "yellow max range x based on chip: " + maxX);
+                        Log.e(TAG, " ");
+                        if ((boardMatrix[j][k].y() > (minY)) && (boardMatrix[j][k].y() < (maxY))) {
+                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
                                 chipPlacement[j][k] = 'y';
                                 Log.e(TAG, "register chip placement y");
+                                Log.e(TAG, " ");
+
                                 break;
                             }
                         }
@@ -581,10 +618,22 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
             lightUpGeneratedPlacement();
 
+            long game3EndTime;
+            int elapsedGame3Seconds=0;
+
             if (DataHolder.getGameSelected() == 3) {
-                long game3EndTime = SystemClock.elapsedRealtime();
-                long elapsedGame3Seconds = (game3EndTime - game3StartTime) + elapsedSecondsUntilPressStart;
-                DataHolder.setScore( (int ) elapsedGame3Seconds);
+                game3EndTime = SystemClock.elapsedRealtime();
+                elapsedSecondsUntilPressStart = elapsedTimeUntilPressStart/1000;
+                Log.e(TAG, "Game 3 seconds until press start button (in long seconds) is: " + String.valueOf(elapsedTimeUntilPressStart));
+                Log.e(TAG, "Game 3 seconds until press start button (in int seconds) is: " + String.valueOf(elapsedSecondsUntilPressStart));
+                Log.e(TAG, "Game 3 seconds without press start timing (in long) is : " + String.valueOf(game3EndTime - game3StartTime));
+                Log.e(TAG, "Game 3 seconds without press start timing (in long seconds) is : " + String.valueOf((game3EndTime - game3StartTime)/1000));
+                Log.e(TAG, "Game 3 seconds without press start timing (in int) is : " + String.valueOf( (int) (game3EndTime - game3StartTime) ));
+                Log.e(TAG, "Game 3 seconds without press start timing (in int seconds) is : " + String.valueOf(  (int) ((game3EndTime - game3StartTime)/1000)) );
+
+
+                elapsedGame3Seconds = (int) (game3EndTime - game3StartTime + elapsedTimeUntilPressStart)/1000 ;
+                Log.e(TAG, "Total time taken for game 3 (in seconds)" + String.valueOf(elapsedGame3Seconds));
             }
 
             //put a bit of delay so can show the user the lighted up LED
@@ -594,23 +643,33 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 Thread.currentThread().interrupt();
             }
 
-            stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");       //turn off all LED
+            //turn off all LED
+            stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");
             send();
 
             //verify win or lose
             if (Arrays.deepEquals(chipPlacement, generatedPlacement)) {
-                Log.e(TAG, "user won!");//user wins
+                Log.e(TAG, "You won!");//user wins
                 win = true;
+                if (DataHolder.getGameSelected() == 1) {
+                    DataHolder.setScore(DataHolder.getScore() + 1);
+                    stageScore = 1;
+                    i.putExtra("stageScore", stageScore);
+                }
+                else if (DataHolder.getGameSelected() == 3) {
+                    DataHolder.setScore(DataHolder.getScore() + (int) elapsedGame3Seconds );
+                    stageTime = (int) elapsedGame3Seconds;
+                    i.putExtra("stageTime", stageTime);
+                }
             }
             else {
-                Log.e(TAG, "user lost!");//user loses
+                Log.e(TAG, "You lost!");//user loses
                 win = false;
-                DataHolder.setScore(0);
             }
 
             //put extra to next activity
-            //i.putExtra("Level",level);
-            //i.putExtra("GameSelected", gameSelected);
+
+
             i.putExtra("win", win);
             startActivity(i);
         }
@@ -623,8 +682,8 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     private void verifyGame2(){
         boolean fingerInsideBoard = false;
         //detect finger colour
-        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
-        fingerDetector.processForFinger(mRgba);
+        Imgproc.GaussianBlur(rgbaInnerWindow, rgbaInnerWindow, new org.opencv.core.Size(3, 3), 1, 1);
+        fingerDetector.processForFinger(rgbaInnerWindow);
         fingerContours = fingerDetector.getContours();
         //--
 
@@ -746,9 +805,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     }
 
     public void send() {        //this function invoked when ack received
+      //  Log.e(TAG, "VERIFY RESULT EXECUTING SEND FUNCTION#####");
         setConnectionStateConnected();
         if (!stringBuffer.isEmpty()) {    //ensures no message sent if no more string.
-            Log.e(TAG, "SENT");
+      //      Log.e(TAG, "SENT FROM VERIFY RESULT");
             Log.e(TAG, "charAt(1) = " + stringBuffer.get(0).charAt(1) );
             if (stringBuffer.get(0).charAt(1) == '1' || stringBuffer.get(0).charAt(1) == '3' ) {            //if stringBuffer.length == 1 && opcode == show LED
                 Log.e(TAG, "enter charAt(1) = 1");
@@ -765,14 +825,18 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             serialSend(stringBuffer.remove(0));
         }
     }
-
+    @Override
     public void onSerialReceived(String theString) {                            //Once connection data received, this function will be called
         //  TODO Auto-generated method stub
 //        if message from bluno indicating pressed start button,
-//        pressedStartButton = true;
-//        else
-        send();
-
+        if (theString.equals("BUTTON PRESSED")) {
+          //  Log.e(TAG, "button is pressed on verify result!!!!!!!!!");
+            pressedStartButton = true;
+        }
+        else {
+          //  Log.e(TAG, "INVOKE SEND FROM VERIFY RESULT#####");
+           send();
+        }
     }
 
 
@@ -781,16 +845,15 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         Mat pointMatRgba = new Mat();
         Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
         Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
-
         return new Scalar(pointMatRgba.get(0, 0));
     }
 
-    ArrayList<PointXY> temporaryCentrePointList = new ArrayList<PointXY>();
+    ArrayList<PointXY> temporaryMinMaxPointList = new ArrayList<PointXY>();
 
     //get centre XY point of detected colour chips
-    private void addChipsCentreToList(List<MatOfPoint> contours , Colours colours) {
+    private void addChipsMinMaxToList(List<MatOfPoint> contours , Colours colours) {
         //show which chips are not removed from the board
-        temporaryCentrePointList.clear();
+        temporaryMinMaxPointList.clear();
 
         for (int k = 0; k < contours.size(); k++) {
             points = contours.get(k).toArray();
@@ -817,30 +880,29 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             }
 
 
-
             centreX = (maxValueX - minValueX) / 2 + minValueX;
             centreY = (maxValueY - minValueY) / 2 + minValueY;
-            PointXY centrePoint = new PointXY(centreX, centreY);
+            PointXY minMaxPoint = new PointXY(minValueX, maxValueX, minValueY, maxValueY);
 
 //            Log.e(TAG, "max value Y: " + maxValueY);
 //            Log.e(TAG, "min value Y: " + minValueY);
 //            Log.e(TAG, "difference value Y: " + (maxValueY - minValueY));
 //            Log.e(TAG, "");
 
-            temporaryCentrePointList.add(centrePoint);
+            temporaryMinMaxPointList.add(minMaxPoint);
             //Imgproc.circle(mRgba, centrePoint ,10 , CONTOUR_COLOR);
             //Imgproc.putText(mRgba, String.valueOf(k) , centrePoint, Core.FONT_HERSHEY_PLAIN, 3 , CONTOUR_COLOR);      //show number of chip (specified colour) detected
             //Imgproc.putText(mRgba, String.valueOf(centreX) + ", " + String.valueOf(centreY), centrePoint, Core.FONT_HERSHEY_PLAIN, 3, CONTOUR_COLOR); //show centre x,y of chip (specified colour)
         }
 
         if (colours == Colours.RED)
-            redCentrePointList = (ArrayList<PointXY>) temporaryCentrePointList.clone();
+            redMinMaxPointList = (ArrayList<PointXY>) temporaryMinMaxPointList.clone();
         if (colours == Colours.GREEN)
-            greenCentrePointList = (ArrayList<PointXY>) temporaryCentrePointList.clone();
+            greenMinMaxPointList = (ArrayList<PointXY>) temporaryMinMaxPointList.clone();
         if (colours == Colours.BLUE)
-            blueCentrePointList = (ArrayList<PointXY>) temporaryCentrePointList.clone();
-        if (colours == Colours.YELLOW)
-            yellowCentrePointList = (ArrayList<PointXY>) temporaryCentrePointList.clone();
+            blueMinMaxPointList = (ArrayList<PointXY>) temporaryMinMaxPointList.clone();
+        //if (colours == Colours.YELLOW)
+        //    yellowMinMaxPointList = (ArrayList<PointXY>) temporaryMinMaxPointList.clone();
     }
 
 
@@ -883,8 +945,8 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             }
 
             //filter identified contours to detect properties of circle/square
-            if (((maxValueX - minValueX) > xMinChipLength) && ((maxValueX - minValueX) < xMaxChipLength))       //each contour must be within this x length range
-                if (((maxValueY - minValueY) > yMinChipLength) && ((maxValueY - minValueY) < yMaxChipLength)) {       //each contour must be within this y length range
+            if (((maxValueX - minValueX) > DataHolder.getxMinChipLength() ) && ((maxValueX - minValueX) < DataHolder.getxMaxChipLength()))       //each contour must be within this x length range
+                if (((maxValueY - minValueY) > DataHolder.getyMinChipLength()) && ((maxValueY - minValueY) < DataHolder.getyMaxChipLength())) {       //each contour must be within this y length range
                     temporaryFilteredColour.add(colouredContourList.get(k));
                 }
         }
@@ -927,6 +989,8 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         }
         return maxPoint;
     }
+
+
 
 
 }

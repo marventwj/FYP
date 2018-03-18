@@ -514,12 +514,12 @@ public class BluetoothLeService extends Service {
             throw new IllegalStateException(e);
         }
         //System.out.println("allwriteCharacteristicString:"+writeCharacteristicString);
-        Log.e(TAG, "allwriteCharacteristicString:"+writeCharacteristicString);
+        Log.d(TAG, "allwriteCharacteristicString:"+writeCharacteristicString);
         
         //As the communication is asynchronous content string and characteristic should be pushed into an ring buffer for further transmission
     	mCharacteristicRingBuffer.push(new BluetoothGattCharacteristicHelper(characteristic,writeCharacteristicString) );
     	//System.out.println("mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
-        Log.e(TAG, "mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
+        Log.d(TAG, "mCharacteristicRingBufferlength:"+mCharacteristicRingBuffer.size());
 
 
 

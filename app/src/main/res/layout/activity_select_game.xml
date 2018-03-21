@@ -166,7 +166,7 @@
                     android:layout_height="64dp"
                     android:background="@drawable/circlebackgroundgreen"
                     android:padding="10dp"
-                    android:src="@drawable/ic_control_point_black_24dp" />
+                    android:src="@drawable/clock" />
 
                 <TextView
                     android:id="@+id/game3Name"

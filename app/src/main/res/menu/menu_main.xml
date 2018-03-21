@@ -45,6 +45,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/onSound"
+        android:orderInCategory="100"
+        android:title="On Sound"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/offSound"
         android:orderInCategory="100"
         android:title="Off Sound"

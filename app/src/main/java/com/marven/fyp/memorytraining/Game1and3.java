@@ -227,7 +227,7 @@ public class Game1and3 extends BaseActivity {
             DataHolder.setBoardSize(8);
         }
 
-        timeLEDOn = numLED * 1000 + 1000;   //e.g, if numLED = 4, give 5 seconds
+        timeLEDOn = numLED/numColour * 1000 + 1000;   //e.g, if numLED = 4, give 5 seconds
         if (DataHolder.getLevel() % 2 == 0)
             numSideBySideLED = 0;
         else
@@ -407,16 +407,30 @@ public class Game1and3 extends BaseActivity {
 
                 Log.e(TAG, "number of LED: " + numberOfLED);
 
+                int numRedLED=0, numGreenLED=0, numBlueLED=0, numYellowLED=0;
                 //number of LED must not exceed the board size
                 for (int i = 0; i < numberOfLED; i++) {
 
                     //soundMP3.start();
                     //random generate colour (either r g b or y)
                     Random random = new Random();
-
                     String colourPool = "rgby";
-                    colour = colourPool.charAt(random.nextInt(numColour));
-                    //colour = colourPool.charAt(random.nextInt(colourPool.length()));
+                    colourPool = colourPool.substring(0, numColour);      //if 1 colour, will only have "r" in the colour pool string, if 2, will have "rg", etc.
+
+                    Log.e(TAG, "NOW COLOUR POOL BECOMES " + colourPool);
+
+                    //this is to generate equal number of LEDs
+                    if (numRedLED >= (numberOfLED / numColour))
+                        colourPool = colourPool.replace("r","");
+                    if (numGreenLED >= (numberOfLED / numColour))
+                        colourPool = colourPool.replace("g","");
+                    if (numBlueLED >= (numberOfLED / numColour))
+                        colourPool = colourPool.replace("b","");
+                    if (numYellowLED >= (numberOfLED / numColour))
+                        colourPool = colourPool.replace("y","");
+
+                    //colour = colourPool.charAt(random.nextInt(numColour));
+                    colour = colourPool.charAt(random.nextInt(colourPool.length()));
                     Log.e(TAG, "chosen random colour is: " + colour);
                     occupied = true;
 
@@ -460,14 +474,22 @@ public class Game1and3 extends BaseActivity {
                     BigInteger temp = two.pow(bitPositionToChange);
 
 //set specific bits position to be lighted up, which will be converted into hex string to be sent to the bluno board so as to light up LED based on bluetooth protocol specification.
-                    if (colour == 'r')
+                    if (colour == 'r') {
                         redRow0To7 = redRow0To7.add(temp);
-                    else if (colour == 'g')
+                        numRedLED++;
+                    }
+                    else if (colour == 'g') {
                         greenRow0To7 = greenRow0To7.add(temp);
-                    else if (colour == 'b')
+                        numGreenLED++;
+                    }
+                    else if (colour == 'b') {
                         blueRow0To7 = blueRow0To7.add(temp);
-                    else if (colour == 'y')
+                        numBlueLED++;
+                    }
+                    else if (colour == 'y') {
                         yellowRow0To7 = yellowRow0To7.add(temp);
+                        numYellowLED++;
+                    }
 
                 }
 

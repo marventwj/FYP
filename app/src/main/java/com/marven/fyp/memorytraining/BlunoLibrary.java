@@ -50,7 +50,8 @@ public abstract  class BlunoLibrary  extends ActionBarActivity {
 		if (mConnectionState == connectionStateEnum.isConnected) {
 			System.out.println("SENDING THE STRING");
 			mSCharacteristic.setValue(theString);
-			mBluetoothLeService.writeCharacteristic(mSCharacteristic);
+			//if (mBluetoothLeService!=null)			//i added this
+				mBluetoothLeService.writeCharacteristic(mSCharacteristic);
 		}
 	}
 

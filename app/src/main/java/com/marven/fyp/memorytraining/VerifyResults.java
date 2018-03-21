@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -23,6 +25,7 @@ import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.imgproc.Imgproc;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
@@ -53,6 +56,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
     Intent i;
     boolean win;
+
+    Timer timer = new Timer();
+    int elapsedGame3Seconds=0;
+    ProgressDialog progress;
 
     PointXY[][] boardMatrix = new PointXY[8][8];
     char [][] chipPlacement = new char[8][8];
@@ -253,7 +260,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
         //hsv : 95, 126, 134, 0 - old green chip
         greenBlobColorHsv.val[0] = 96;  //H
-        greenBlobColorHsv.val[1] = 149; //S
+        greenBlobColorHsv.val[1] = 169; //S
         greenBlobColorHsv.val[2] = 165; //V
         //82 180 140            //radius 15 50 110          -green magnet without light
         //96 149 165            //radius 25 100 110         -green magnet with white dim light
@@ -285,7 +292,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 ", " + mBlobColorRgba.val[2] + ", " + mBlobColorRgba.val[3] + ")");
 
         redDetector.setColorRadius(new Scalar(25,85,70,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        greenDetector.setColorRadius(new Scalar(25,100,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        greenDetector.setColorRadius(new Scalar(25,80,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         blueDetector.setColorRadius(new Scalar(15,75,50,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         yellowDetector.setColorRadius(new Scalar(15,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
         fingerDetector.setColorRadius(new Scalar(10,70,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
@@ -321,6 +328,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
     }
 
     Mat rgbaInnerWindow;
+    boolean resultsVerified = false;
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
@@ -330,7 +338,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         int cols = (int) mRgba.size().width;
         int left = cols / 18;
         int top = rows / 8;
-        int width = cols *5 / 6;
+        int width = cols *2 / 3;
         int height = rows *3 / 4;
         rgbaInnerWindow = mRgba.submat(0, rows , 0, width);
 
@@ -351,37 +359,9 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
         return mRgba;
     }
 
-    private void determineIfUserPressedStart(){
-        //detect pink button colour
-        pinkButtonDetector.process(mRgba);
-        pinkButtonContours = pinkButtonDetector.getContours();
-        filteredPinkButtonContours = filterColourContours(pinkButtonContours);
-        Imgproc.drawContours(mRgba, filteredPinkButtonContours, -1, new Scalar (255, 0 , 255 , 255));   //draw pink contours on the screen
-        //--
+//
 
-        //detect finger colour
-        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
-        fingerDetector.processForFinger(mRgba);
-        fingerContours = fingerDetector.getContours();
-        //--
 
-        if (fingerContours.size() != 0 ) {  //filter out wrong finger detections
-            PointXY fingerTipXY = detectFinger();
-            checkIfUserPressPinkButton(fingerTipXY);
-        }
-    }
-
-    private void checkIfUserPressPinkButton(PointXY fingerTipXY){
-        PointXY pinkButtonXY = getMaxPointXY(filteredPinkButtonContours);   //get point of max Y of pink button
-        if (filteredPinkButtonContours.size() != 0) {  //if pink button is found on camera
-            if ((pinkButtonXY.y() > (fingerTipXY.y() - fingerBufferLength)) && (pinkButtonXY.y() < (fingerTipXY.y() + fingerBufferLength))) { //use first column as reference to check which column the chip lies on
-                if ((pinkButtonXY.x() > (fingerTipXY.x() - fingerBufferLength)) && (pinkButtonXY.x() < (fingerTipXY.x() + fingerBufferLength))) {
-                    pressedStartButton = true;
-                    Log.e(TAG, "START!");
-                }
-            }
-        }
-    }
 
     private PointXY detectFinger(){
         rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(0).toArray()));
@@ -449,7 +429,8 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
 
         //if screen is touched (simulate start button), verify results
-        if (pressedStartButton) {
+        if (pressedStartButton && !resultsVerified) {
+            resultsVerified = true;
 
             Log.e(TAG, "filtered red Contours count: " + filteredRedContours.size());
             addChipsMinMaxToList(filteredRedContours, Colours.RED);
@@ -501,32 +482,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 double maxY = greenMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
                 Log.e(TAG, "green min range y based on chip: " + minY);
                 Log.e(TAG, "green max range y based on chip: " + maxY);
-
-
-//                for (int j = 0; j < 8; j++) {       //iterate through first column
-//                    Log.e(TAG, "y of board: " + boardMatrix[j][0].y());
-//
-//                    if ((boardMatrix[j][0].y() > (minY)) && (boardMatrix[j][0].y() < (maxY))) { //use first column as reference to check which column the chip lies on
-//                        //check X
-//
-//                        Log.e(TAG, "green min range x based on chip: " + minX);
-//                        Log.e(TAG, "green max range x based on chip: " + maxX);
-//
-//                        for (int k = 0; k < 8; k++) {    //iterate through the rows
-//                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
-//                                chipPlacement[j][k] = 'g';
-//
-//                                Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
-//                                Log.e(TAG, "register chip placement g");
-//                                Log.e(TAG, " ");
-//
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-
-
                 for (int j = 0; j < 8; j++) {
                     for (int k = 0; k < 8; k++) {
                         Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
@@ -557,9 +512,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 double maxY = blueMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
                 Log.e(TAG, "blue min range y based on chip: " + minY);
                 Log.e(TAG, "blue max range y based on chip: " + maxY);
-
-
-
                 for (int j = 0; j < 8; j++) {
                     for (int k = 0; k < 8; k++) {
                         Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
@@ -587,8 +539,6 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 double maxY = yellowMinMaxPointList.get(i).maxY()+ decreaseChipYMaxValue;
                 Log.e(TAG, "yellow min range y based on chip: " + minY);
                 Log.e(TAG, "yellow max range y based on chip: " + maxY);
-
-
                 for (int j = 0; j < 8; j++) {
                     for (int k = 0; k < 8; k++) {
                         Log.e(TAG, "x of board at j = " +j+ ", k = " + k +" is: " + boardMatrix[j][k].x());
@@ -619,7 +569,7 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
             lightUpGeneratedPlacement();
 
             long game3EndTime;
-            int elapsedGame3Seconds=0;
+
 
             if (DataHolder.getGameSelected() == 3) {
                 game3EndTime = SystemClock.elapsedRealtime();
@@ -630,48 +580,62 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                 Log.e(TAG, "Game 3 seconds without press start timing (in long seconds) is : " + String.valueOf((game3EndTime - game3StartTime)/1000));
                 Log.e(TAG, "Game 3 seconds without press start timing (in int) is : " + String.valueOf( (int) (game3EndTime - game3StartTime) ));
                 Log.e(TAG, "Game 3 seconds without press start timing (in int seconds) is : " + String.valueOf(  (int) ((game3EndTime - game3StartTime)/1000)) );
-
-
                 elapsedGame3Seconds = (int) (game3EndTime - game3StartTime + elapsedTimeUntilPressStart)/1000 ;
                 Log.e(TAG, "Total time taken for game 3 (in seconds)" + String.valueOf(elapsedGame3Seconds));
             }
 
-            //put a bit of delay so can show the user the lighted up LED
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-
-            //turn off all LED
-            stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");
-            send();
-
-            //verify win or lose
-            if (Arrays.deepEquals(chipPlacement, generatedPlacement)) {
-                Log.e(TAG, "You won!");//user wins
-                win = true;
-                if (DataHolder.getGameSelected() == 1) {
-                    DataHolder.setScore(DataHolder.getScore() + 1);
-                    stageScore = 1;
-                    i.putExtra("stageScore", stageScore);
+//            //put a bit of delay so can show the user the lighted up LED
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException ex) {
+//                Thread.currentThread().interrupt();
+//            }
+            runOnUiThread(new Runnable() {      //anything that updates view need to use this.
+                @Override
+                public void run() {
+                    progress = new ProgressDialog(VerifyResults.this);
+                    progress.setMessage("Verifying Results...");
+                    progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                    progress.show();
                 }
-                else if (DataHolder.getGameSelected() == 3) {
-                    DataHolder.setScore(DataHolder.getScore() + (int) elapsedGame3Seconds );
-                    stageTime = (int) elapsedGame3Seconds;
-                    i.putExtra("stageTime", stageTime);
+            });
+            //start timer
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    progress.dismiss();
+
+                    //turn off all LED
+                    stringBuffer.add("0300000000CCFFFFFFFFFFFFFFFF");
+                    send();
+
+                    //verify win or lose
+                    if (Arrays.deepEquals(chipPlacement, generatedPlacement)) {
+                        Log.e(TAG, "You won!");//user wins
+                        win = true;
+                        if (DataHolder.getGameSelected() == 1) {
+                            DataHolder.setScore(DataHolder.getScore() + 1);
+                            stageScore = 1;
+                            i.putExtra("stageScore", stageScore);
+                        }
+                        else if (DataHolder.getGameSelected() == 3) {
+                            DataHolder.setScore(DataHolder.getScore() + (int) elapsedGame3Seconds );
+                            stageTime = (int) elapsedGame3Seconds;
+                            i.putExtra("stageTime", stageTime);
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "You lost!");//user loses
+                        win = false;
+                    }
+
+                    //put extra to next activity
+                    i.putExtra("win", win);
+                    startActivity(i);
+
                 }
-            }
-            else {
-                Log.e(TAG, "You lost!");//user loses
-                win = false;
-            }
+            },4000);    //in millis
 
-            //put extra to next activity
-
-
-            i.putExtra("win", win);
-            startActivity(i);
         }
         pressedStartButton = false;
 
@@ -759,13 +723,10 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
                                     startActivity(i);
                                 }
                             }
-
                             //haven't reach 1 second, continue observing
                             else {
                                 prevFingerPositionOnBoard = fingerPositionOnBoard;
                             }
-
-
                             break;
                         }
                     }
@@ -994,3 +955,65 @@ public class VerifyResults extends BaseActivity implements View.OnTouchListener,
 
 
 }
+
+
+
+
+
+//                for (int j = 0; j < 8; j++) {       //iterate through first column
+//                    Log.e(TAG, "y of board: " + boardMatrix[j][0].y());
+//
+//                    if ((boardMatrix[j][0].y() > (minY)) && (boardMatrix[j][0].y() < (maxY))) { //use first column as reference to check which column the chip lies on
+//                        //check X
+//
+//                        Log.e(TAG, "green min range x based on chip: " + minX);
+//                        Log.e(TAG, "green max range x based on chip: " + maxX);
+//
+//                        for (int k = 0; k < 8; k++) {    //iterate through the rows
+//                            if ((boardMatrix[j][k].x() > (minX)) && (boardMatrix[j][k].x() < (maxX))) {
+//                                chipPlacement[j][k] = 'g';
+//
+//                                Log.e(TAG, "x of board: " + boardMatrix[j][k].x());
+//                                Log.e(TAG, "register chip placement g");
+//                                Log.e(TAG, " ");
+//
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+
+
+
+//    private void determineIfUserPressedStart(){
+//        //detect pink button colour
+//        pinkButtonDetector.process(mRgba);
+//        pinkButtonContours = pinkButtonDetector.getContours();
+//        filteredPinkButtonContours = filterColourContours(pinkButtonContours);
+//        Imgproc.drawContours(mRgba, filteredPinkButtonContours, -1, new Scalar (255, 0 , 255 , 255));   //draw pink contours on the screen
+//        //--
+//
+//        //detect finger colour
+//        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
+//        fingerDetector.processForFinger(mRgba);
+//        fingerContours = fingerDetector.getContours();
+//        //--
+//
+//        if (fingerContours.size() != 0 ) {  //filter out wrong finger detections
+//            PointXY fingerTipXY = detectFinger();
+//            checkIfUserPressPinkButton(fingerTipXY);
+//        }
+//    }
+
+
+//    private void checkIfUserPressPinkButton(PointXY fingerTipXY){
+//        PointXY pinkButtonXY = getMaxPointXY(filteredPinkButtonContours);   //get point of max Y of pink button
+//        if (filteredPinkButtonContours.size() != 0) {  //if pink button is found on camera
+//            if ((pinkButtonXY.y() > (fingerTipXY.y() - fingerBufferLength)) && (pinkButtonXY.y() < (fingerTipXY.y() + fingerBufferLength))) { //use first column as reference to check which column the chip lies on
+//                if ((pinkButtonXY.x() > (fingerTipXY.x() - fingerBufferLength)) && (pinkButtonXY.x() < (fingerTipXY.x() + fingerBufferLength))) {
+//                    pressedStartButton = true;
+//                    Log.e(TAG, "START!");
+//                }
+//            }
+//        }
+//    }

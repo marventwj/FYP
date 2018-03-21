@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Game1and3"
+    android:background="@drawable/background1"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_top"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/green"
+        app:theme="@style/AppTheme" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Difficulty"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title" />
+    </android.support.v7.widget.Toolbar>
+
+
+    <Button
+        android:id="@+id/buttonEasy"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_background"
+        android:textColor="#FFFFFF"
+        android:text="1 Colour Mode" />
+
+    <Button
+        android:id="@+id/buttonMedium"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/buttonEasy"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/button_background"
+        android:text="2 Colour Mode"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/buttonHard"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/buttonMedium"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/button_background"
+        android:text="3 Colour Mode"
+        android:textColor="#FFFFFF" />
+
+</RelativeLayout>

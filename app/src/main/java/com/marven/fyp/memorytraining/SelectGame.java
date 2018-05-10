@@ -60,28 +60,28 @@ public class SelectGame extends BaseActivity {
 
         game1NameText = (TextView) findViewById(R.id.game1Name);
         game2NameText = (TextView) findViewById(R.id.game2Name);
-        game3NameText = (TextView) findViewById(R.id.game3Name);
-        game4NameText = (TextView) findViewById(R.id.game4Name);
+        //game3NameText = (TextView) findViewById(R.id.game3Name);
+        //game4NameText = (TextView) findViewById(R.id.game4Name);
 
         game1DescText = (TextView) findViewById(R.id.game1Desc);
         game2DescText = (TextView) findViewById(R.id.game2Desc);
-        game3DescText = (TextView) findViewById(R.id.game3Desc);
-        game4DescText = (TextView) findViewById(R.id.game4Desc);
+        //game3DescText = (TextView) findViewById(R.id.game3Desc);
+        //game4DescText = (TextView) findViewById(R.id.game4Desc);
 
         gameCard1 = (CardView) findViewById(R.id.Game1Card);
         gameCard2 = (CardView) findViewById(R.id.Game2Card);
-        gameCard3 = (CardView) findViewById(R.id.Game3Card);
-        gameCard4 = (CardView) findViewById(R.id.Game4Card);
+        //gameCard3 = (CardView) findViewById(R.id.Game3Card);
+        //gameCard4 = (CardView) findViewById(R.id.Game4Card);
 
         game1NameText.setText("Memorize The Colours");
-        game2NameText.setText("CopyCat Simon Says");
-        game3NameText.setText("Memory Time Challenge");
-        game4NameText.setText("Game 4 Name");
+        game2NameText.setText("Memory Time Challenge");
+        //game3NameText.setText("CopyCat Simon Says");
+        //game4NameText.setText("Game 4 Name");
 
         game1DescText.setText("Test Your Memory With Beautiful Colours!");
-        game2DescText.setText("Think You Have A Good Memory? Try CopyCat!");
-        game3DescText.setText("Challenge Your Memory Against Time!");
-        game4DescText.setText("Game 4 Desc");
+        game2DescText.setText("Challenge Your Memory Against Time!");
+        //game3DescText.setText("Think You Have A Good Memory? Try CopyCat!");
+        //game4DescText.setText("Game 4 Desc");
 
         gameCard1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,11 +96,12 @@ public class SelectGame extends BaseActivity {
             @Override
             public void onClick(View v) {
                 //i.putExtra("GameSelected",2);
-                DataHolder.setGameSelected(2);
+                DataHolder.setGameSelected(3);
                 startActivity(i);
             }
         });
 
+        /*
         gameCard3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +119,7 @@ public class SelectGame extends BaseActivity {
                 startActivity(i);
             }
         });
+        */
     }
 
 

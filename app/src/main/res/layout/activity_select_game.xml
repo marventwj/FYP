@@ -110,7 +110,7 @@
                     android:layout_height="64dp"
                     android:background="@drawable/circlebackgroundpink"
                     android:padding="10dp"
-                    android:src="@drawable/game2" />
+                    android:src="@drawable/clock" />
 
                 <TextView
                     android:id="@+id/game2Name"
@@ -140,6 +140,8 @@
 
     </LinearLayout>
 
+
+    <!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -166,7 +168,7 @@
                     android:layout_height="64dp"
                     android:background="@drawable/circlebackgroundgreen"
                     android:padding="10dp"
-                    android:src="@drawable/clock" />
+                    android:src="@drawable/game2" />
 
                 <TextView
                     android:id="@+id/game3Name"
@@ -299,6 +301,8 @@
 
 
     </LinearLayout>
+
+    -->
 </LinearLayout>
 
 

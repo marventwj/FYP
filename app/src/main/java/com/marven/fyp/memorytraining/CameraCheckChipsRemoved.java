@@ -55,8 +55,8 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
     private boolean pressedStartButton = false;
     private Mat mRgba;
     private Scalar mBlobColorRgba;
-    private Scalar               mBlobColorHsv ,redBlobColorHsv, greenBlobColorHsv, blueBlobColorHsv, yellowBlobColorHsv, fingerBlobColorHsv , pinkButtonBlobColorHsv;
-    private ColorBlobDetector    mDetector, redDetector, greenDetector, blueDetector, yellowDetector, fingerDetector , pinkButtonDetector;
+    private Scalar               mBlobColorHsv ,redBlobColorHsv, greenBlobColorHsv, blueBlobColorHsv, yellowBlobColorHsv, fingerBlobColorHsv , pinkButtonBlobColorHsv ,anotherRedBlobColorHsv;
+    private ColorBlobDetector    mDetector, redDetector, greenDetector, blueDetector, yellowDetector, fingerDetector , pinkButtonDetector, anotherRedDetector;
 
 
     private Mat mSpectrum;
@@ -192,6 +192,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
         redDetector = new ColorBlobDetector();
         greenDetector = new ColorBlobDetector();
         blueDetector = new ColorBlobDetector();
+    //    anotherRedDetector = new ColorBlobDetector();
 //        yellowDetector = new ColorBlobDetector();
 //        fingerDetector = new ColorBlobDetector();
 //        pinkButtonDetector = new ColorBlobDetector();
@@ -202,6 +203,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
         redBlobColorHsv = new Scalar(255);
         greenBlobColorHsv = new Scalar(255);
         blueBlobColorHsv = new Scalar(255);
+     //   anotherRedBlobColorHsv = new Scalar(255);
 //        yellowBlobColorHsv = new Scalar(255);
 //        fingerBlobColorHsv = new Scalar ( 255);
 //        pinkButtonBlobColorHsv = new Scalar (255);
@@ -218,6 +220,11 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
         //245 171 185           //radius 25 85 70           -red magnet with light
 
 
+//        anotherRedBlobColorHsv.val[0] = 0;
+//        anotherRedBlobColorHsv.val[1] = 0;
+//        anotherRedBlobColorHsv.val[2] = 0;
+
+
         //hsv : 95, 126, 134, 0 - old green chip
         greenBlobColorHsv.val[0] = 96;  //H
         greenBlobColorHsv.val[1] = 169; //S
@@ -228,7 +235,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
         //hsv : 143, 143, 138, 0 -  old blue chip
         blueBlobColorHsv.val[0] = 163;  //H
         blueBlobColorHsv.val[1] = 172;  //S
-        blueBlobColorHsv.val[2] = 205;   //V
+        blueBlobColorHsv.val[2] = 145;   //V
         //177 157 130           //radius 15 50 110          -blue magnet without light
         //163 172 205           //radius 25 85 50           -blue magnet with white dim light
 
@@ -254,15 +261,17 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
 
         //15,50,255 currently
 
-        redDetector.setColorRadius(new Scalar(25,85,70,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        redDetector.setColorRadius(new Scalar(25,120,120,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+ //       anotherRedDetector.setColorRadius(new Scalar(0,0,0,0));
         greenDetector.setColorRadius(new Scalar(25,80,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
-        blueDetector.setColorRadius(new Scalar(25,85,50,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
+        blueDetector.setColorRadius(new Scalar(45,140,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
      //   yellowDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
      //   fingerDetector.setColorRadius(new Scalar(5,50,110,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
      //   pinkButtonDetector.setColorRadius(new Scalar(25,30,90,0));   //default is 25,50,50,0. set 2nd and 3rd parameter to adjust greyness / brightness acceptance
 
         //mDetector.setHsvColor(mBlobColorHsv);              //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
         redDetector.setHsvColor(redBlobColorHsv);            //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
+   //     anotherRedDetector.setHsvColor(anotherRedBlobColorHsv);
         greenDetector.setHsvColor(greenBlobColorHsv);        //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
         blueDetector.setHsvColor(blueBlobColorHsv);          //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
      //   yellowDetector.setHsvColor(yellowBlobColorHsv);      //mDetector is ColorBlobDetector object, tell the detector to detect this colour?
@@ -271,6 +280,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
 
         //Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);      //resize the image to specture size
         Imgproc.resize(redDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
+//        Imgproc.resize(anotherRedDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
         Imgproc.resize(greenDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);      //resize the image to specture size
         Imgproc.resize(blueDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
      //   Imgproc.resize(yellowDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
@@ -295,6 +305,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
     List<MatOfPoint> contours;
 
     List<MatOfPoint> redContours;// = new ArrayList<MatOfPoint>();
+    List<MatOfPoint> anotherRedContours;// = new ArrayList<MatOfPoint>();
     List<MatOfPoint> greenContours;// = new ArrayList<MatOfPoint>();
     List<MatOfPoint> blueContours;// = new ArrayList<MatOfPoint>();
     List<MatOfPoint> yellowContours;// = new ArrayList<MatOfPoint>();
@@ -305,10 +316,6 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
     ArrayList<PointXY> rowPoints = new ArrayList<PointXY>();
     PointXY[][] boardMatrix = new PointXY[8][8];
     boolean chipsRemoved = false;
-
-    RotatedRect rect;
-    List<MatOfPoint> hullPoints = new LinkedList<MatOfPoint>();
-
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         //take the frame rgba mat object
@@ -350,6 +357,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
                 serialSend("0300000000CCFFFFFFFFFFFFFFFF");
                 //check if 64 circles detected
                 if (boardCentrePoints.size() == 64) {
+            //    if (boardCentrePoints.size() > 1) {
                     //sort the 64 centrepoints in ascending order
                     Collections.sort(boardCentrePoints, new Comparator<PointXY>() {
                         public int compare(PointXY o1, PointXY o2) {
@@ -361,6 +369,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
                         //add 8 points (all in the same row) into arraylist rowPoints
                         for (int j = 0; j < 8; j++)
                             rowPoints.add(boardCentrePoints.remove(0));
+          //                  rowPoints.add(new PointXY (2,2));
 
                         Collections.sort(rowPoints, new Comparator<PointXY>() {
                             public int compare(PointXY o1, PointXY o2) {
@@ -398,104 +407,27 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
 
             }
 
-        }
-
-
-
-
- //       handMinX = 9999999;
-
-
+        } //chips removed
 
         //detecting chips
         redDetector.process(rgbaInnerWindow);
+  //      anotherRedDetector.process(rgbaInnerWindow);
         greenDetector.process(rgbaInnerWindow);
         blueDetector.process(rgbaInnerWindow);
 //        yellowDetector.process(mRgba);
 
         //get the contours after detector.process
         redContours = redDetector.getContours();
+  //      anotherRedDetector.getContours();
         greenContours = greenDetector.getContours();
         blueContours = blueDetector.getContours();
 //        yellowContours = yellowDetector.getContours();
 
-
-
-
-//        Imgproc.GaussianBlur(mRgba, mRgba, new org.opencv.core.Size(3, 3), 1, 1);
-//        fingerDetector.processForFinger(mRgba);
-//        fingerContours = fingerDetector.getContours();
-//        pinkButtonDetector.process(mRgba);
-//        pinkButtonContours = pinkButtonDetector.getContours();
-//        filteredPinkButtonContours = filterColourContours(pinkButtonContours, true);
-//        Imgproc.drawContours(mRgba, filteredPinkButtonContours, -1, new Scalar (255, 0 , 255 , 255));   //draw pink contours on the screen
-
-        //process fingers to check start press
-//        if (fingerContours.size() != 0 ) {//filter out wrong detections
-//            hullPoints.clear();
-//
-//            rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(0).toArray()));
-//            double boundWidth = rect.size.width;
-//            double boundHeight = rect.size.height;
-//            int boundPos = 0;
-//            for (int i = 1; i < fingerContours.size(); i++) {
-//                rect = Imgproc.minAreaRect(new MatOfPoint2f(fingerContours.get(i).toArray()));
-//                if (rect.size.width * rect.size.height > boundWidth * boundHeight) {
-//                    boundWidth = rect.size.width;
-//                    boundHeight = rect.size.height;
-//                    boundPos = i;
-//                }
-//            }
-//            Rect boundRect = Imgproc.boundingRect(new MatOfPoint(fingerContours.get(boundPos).toArray()));
-//            Imgproc.rectangle(mRgba, boundRect.tl(), boundRect.br(), new Scalar(255, 255, 255, 255), 2, 8, 0);   // white
-//            double a = boundRect.br().y - boundRect.tl().y;
-//            a = a * 0.7;
-//            a = boundRect.tl().y + a;
-//            Imgproc.rectangle(mRgba, boundRect.tl(), new Point(boundRect.br().x, a), CONTOUR_COLOR, 2, 8, 0);
-//            MatOfPoint2f pointMat = new MatOfPoint2f();
-//            Imgproc.approxPolyDP(new MatOfPoint2f(fingerContours.get(boundPos).toArray()), pointMat, 3, true);
-//            fingerContours.set(boundPos, new MatOfPoint(pointMat.toArray()));
-//            MatOfInt hull = new MatOfInt();
-//            MatOfInt4 convexDefect = new MatOfInt4();
-//            Imgproc.convexHull(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull);
-//            Imgproc.convexityDefects(new MatOfPoint(fingerContours.get(boundPos).toArray()), hull, convexDefect);
-//            List<Point> listPo = new LinkedList<Point>();
-//            for (int j = 0; j < hull.toList().size(); j++) {
-//                listPo.add(fingerContours.get(boundPos).toList().get(hull.toList().get(j)));
-//            }
-//            MatOfPoint e = new MatOfPoint();
-//            e.fromList(listPo);
-//            hullPoints.add(e);
-//            Imgproc.drawContours(mRgba, hullPoints, -1, new Scalar(255, 0, 255, 255), 3);   //pink
-//            //Log.e(TAG, "hullPoints size: " + hullPoints.size()); //1 hand = 1 hullpoint
-//
-//            if (filteredPinkButtonContours.size() != 0) {
-//                PointXY fingerTipXY = getMaxPointXY(hullPoints, true);   //get the XY of the finger tip
-//                PointXY pinkButtonXY = getMaxPointXY(filteredPinkButtonContours , false);
-//
-////            Log.e(TAG, "BUTTONX!" + pinkButtonXY.x());
-////            Log.e(TAG, "FINGERX!" + fingerTipXY.x());
-////            Log.e(TAG, "BUTTONY!" + pinkButtonXY.y());
-////            Log.e(TAG, "FINGERY!" + fingerTipXY.y());
-//
-//
-//                if ((pinkButtonXY.y() > (fingerTipXY.y() - fingerBufferLength)) && (pinkButtonXY.y() < (fingerTipXY.y() + fingerBufferLength))) { //use first column as reference to check which column the chip lies on
-//                    if ((pinkButtonXY.x() > (fingerTipXY.x() - fingerBufferLength)) && (pinkButtonXY.x() < (fingerTipXY.x() + fingerBufferLength))) {
-//                        pressedStartButton = true;
-//                        Log.e(TAG, "START!");
-//                    }
-//                }
-//            }
-//        }
-        ////end of process to check start press
-
-
-
         filteredRedContours = filterColourContours(redContours, false);
+//        filteredAnotherRedContours = filterColourContours(anotherRedContours,false);
         filteredGreenContours = filterColourContours(greenContours, false);
         filteredBlueContours = filterColourContours(blueContours, false);
 //        filteredYellowContours = filterColourContours(yellowContours,false );
-
 
    //     Imgproc.drawContours(mRgba, redContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
    //     Imgproc.drawContours(mRgba, greenContours, -1,  new Scalar(0,255,0,255));   //draw red contours on the screen
@@ -503,6 +435,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
    //     Imgproc.drawContours(mRgba, yellowContours, -1,  new Scalar(255,255,0,255));   //draw red contours on the screen
 
         Imgproc.drawContours(rgbaInnerWindow, filteredRedContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
+  //      Imgproc.drawContours(rgbaInnerWindow, filteredAnotherRedContours, -1, CONTOUR_COLOR);   //draw red contours on the screen
         Imgproc.drawContours(rgbaInnerWindow, filteredGreenContours, -1,  new Scalar(0,255,0,255));   //draw green contours on the screen
         Imgproc.drawContours(rgbaInnerWindow, filteredBlueContours, -1,  new Scalar(0,0,255,255));   //draw blue contours on the screen
 //        Imgproc.drawContours(mRgba, filteredYellowContours, -1,  new Scalar(255,255,0,255));   //draw yellow contours on the screen
@@ -534,12 +467,6 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
                     setConnectionStateConnected();
                     serialSend("03000000FFCCFFFFFFFFFFFFFFFF");
 
-//                    //delay awhile
-//                    try {
-//                        Thread.sleep(4000);
-//                    } catch (InterruptedException ex) {
-//                        Thread.currentThread().interrupt();
-//                    }
                     runOnUiThread(new Runnable() {      //anything that updates view need to use this.
                     @Override
                     public void run() {
@@ -565,10 +492,6 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
                     //chips removed at here, set chips boolean as removed and will go to next frame.
                       chipsRemoved = true;
                 }
-
-
-
-
             }
 
              else {                            //if chips not removed, play sound to warn user to remove chips
@@ -641,6 +564,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
     }
 
     List<MatOfPoint> filteredRedContours = new ArrayList<MatOfPoint>();
+    List<MatOfPoint> filteredAnotherRedContours = new ArrayList<MatOfPoint>();
     List<MatOfPoint> filteredGreenContours = new ArrayList<MatOfPoint>();
     List<MatOfPoint> filteredBlueContours = new ArrayList<MatOfPoint>();
 //    List<MatOfPoint> filteredYellowContours = new ArrayList<MatOfPoint>();
@@ -698,45 +622,6 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
 
         return temporaryFilteredColour;
     }
-
-
-
-
-//    protected PointXY getMaxPointXY(List<MatOfPoint> contours , boolean updateHandMinX) {
-//        PointXY maxPoint = null;
-//        for (int k = 0; k < contours.size(); k++) {
-//            points = contours.get(k).toArray();
-//            minValueX = points[0].x;
-//            minValueY = points[0].y;
-//            for (int i = 1; i < points.length; i++) {
-//                if (points[i].x < minValueX) {
-//                    minValueX = points[i].x;
-//                }
-//                if (points[i].y < minValueY) {
-//                    minValueY = points[i].y;
-//                }
-//            }
-//
-//            maxValueX = points[0].x;
-//            maxValueY = points[0].y;
-//            for (int i = 1; i < points.length; i++) {
-//                if (points[i].x > maxValueX) {
-//                    maxValueX = points[i].x;
-//                }
-//                if (points[i].y > maxValueY) {
-//                    maxValueY = points[i].y;
-//                    valueX = points[i].x;
-//                }
-//            }
-//
-//            maxPoint = new PointXY(valueX, maxValueY);
-//
-//            if (updateHandMinX)
-//                 handMinX = minValueX;   //min value of hand X
-//        }
-////        Log.e(TAG, "exit");
-//        return maxPoint;
-//    }
 
     private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
         Mat pointMatRgba = new Mat();

@@ -525,9 +525,8 @@ public class Game1and3 extends BaseActivity {
                 // TODO Auto-generated method stub - For game 3 only
                 if (DataHolder.getGameSelected() == 3) {
                     startTime = SystemClock.elapsedRealtime();  //start timer
+                    allowPressStartButton = true;
                 }
-                allowPressStartButton = true;
-
 
                 runOnUiThread(new Runnable() {      //anything that updates view need to use this.
                     @Override

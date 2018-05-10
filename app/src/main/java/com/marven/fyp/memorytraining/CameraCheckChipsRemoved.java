@@ -637,7 +637,7 @@ public class CameraCheckChipsRemoved extends BaseActivity implements View.OnTouc
 
         //        if message from bluno indicating pressed start button,
         if (theString.equals("BUTTON PRESSED")){
-            //Log.e(TAG, "button is pressed on check chips!!!!!!!!!");
+            Log.e(TAG, "button is pressed on check chips!!!!!!!!!");
             pressedStartButton = true;
         }
 

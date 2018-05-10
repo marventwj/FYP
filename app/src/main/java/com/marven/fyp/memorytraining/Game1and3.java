@@ -657,7 +657,7 @@ public class Game1and3 extends BaseActivity {
         } else if (colour == 'p') {
             string += "800080";
         } else if (colour == 'w') { //dim white
-            string += "111111";
+            string += "999999";
         }
 
         string += "CC";     //'brightness'
